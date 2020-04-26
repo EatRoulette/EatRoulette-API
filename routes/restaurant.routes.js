@@ -1,4 +1,5 @@
 const bodyParser = require('body-parser');
+const RestaurantController = require('../controllers').RestaurantController;
 
 module.exports = function(app) {
 
@@ -6,7 +7,15 @@ module.exports = function(app) {
      * Create restaurant
      */
     app.post('/restaurant', bodyParser.json(), async (req, res) => {
-        res.status(501).end();
+        const ret = await RestaurantController.saveRestaurant(req);
+
+        if(ret === -1){
+            res.status(400).end();
+        } else if(ret){
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+
     });
 
     /**
