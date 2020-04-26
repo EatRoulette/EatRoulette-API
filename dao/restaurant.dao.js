@@ -14,6 +14,19 @@ class RestaurantDao {
         return ret;
     }
 
+    /**
+     * Get all restaurants
+     * @returns {Promise<*>}
+     */
+    static async getAll(){
+        const allRestaurants = await Restaurant.find();
+
+        return allRestaurants;
+    }
+
+
+
+
 }
 
 module.exports = RestaurantDao;

@@ -1,4 +1,5 @@
 const RestaurantDAO = require('../dao').RestaurantDAO;
+const Tools = require('../utils').Util;
 
 class RestaurantController {
 
@@ -16,6 +17,13 @@ class RestaurantController {
         } else {
             return -1; //Bad request
         }
+    }
+
+    static async getRandomRestaurant(){
+        const allRestaurants = await RestaurantDAO.getAll();
+        const randomNumber = Tools.getRandomInt(0, allRestaurants.length);
+
+        return allRestaurants[randomNumber];
     }
 
 

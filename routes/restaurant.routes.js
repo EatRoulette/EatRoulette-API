@@ -26,16 +26,21 @@ module.exports = function(app) {
     });
 
     /**
-     * Get restaurant by id
+     * Get random restaurant
      */
-    app.get('/restaurant/:id', bodyParser.json(), async (req, res) => {
-        res.status(501).end();
+    app.get('/restaurant/rand', async (req, res) => {
+        const randRest = await RestaurantController.getRandomRestaurant();
+
+        if(randRest){
+            res.status(200).json(randRest);
+        }
+        res.status(500).end();
     });
 
     /**
-     * Get random restaurant
+     * Get restaurant by id
      */
-    app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+    app.get('/restaurant/:id', bodyParser.json(), async (req, res) => {
         res.status(501).end();
     });
 
