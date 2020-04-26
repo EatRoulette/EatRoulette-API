@@ -22,7 +22,12 @@ module.exports = function(app) {
      * Get all restaurants
      */
     app.get('/restaurant', bodyParser.json(), async (req, res) => {
-        res.status(501).end();
+        const allRestaurants = await RestaurantController.getAllRestaurants();
+
+        if(allRestaurants){
+            res.status(200).json(allRestaurants);
+        }
+        res.status(500).end();
     });
 
     /**
@@ -54,8 +59,17 @@ module.exports = function(app) {
     /**
      * Delete restaurant by id
      */
-    app.delete('/restaurant/id', async (req, res) => {
-        res.status(501).end();
+    app.delete('/restaurant/:id', async (req, res) => {
+        const ret = await RestaurantController.deleteById(req.params.id);
+
+        if(ret === -1) {
+            res.status(404).json({
+                message: "This restaurant does not exist"
+            });
+        } else if(ret){
+            res.status(200).end();
+        }
+        res.status(500).end();
     });
 
 

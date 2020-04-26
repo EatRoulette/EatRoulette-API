@@ -19,11 +19,48 @@ class RestaurantController {
         }
     }
 
+    /**
+     * Get all restaurants
+     * @returns {Promise<undefined|*>}
+     */
+    static async getAllRestaurants(){
+        const allRestaurants = await RestaurantDAO.getAll();
+
+        if(allRestaurants){
+            return allRestaurants;
+        }
+        return undefined;
+    }
+
+    /**
+     * Return a random restaurant
+     * @returns {Promise<*>}
+     */
     static async getRandomRestaurant(){
         const allRestaurants = await RestaurantDAO.getAll();
-        const randomNumber = Tools.getRandomInt(0, allRestaurants.length);
+        if (allRestaurants.length > 0){
+            const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
 
-        return allRestaurants[randomNumber];
+            return allRestaurants[randomNumber];
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Delete restaurant if exist
+     * @param id
+     * @returns {Promise<number|*>}
+     */
+    static async deleteById(id){
+        const restaurant = await RestaurantDAO.getById(id);
+
+        if(restaurant) {
+            const isDeleted = await RestaurantDAO.deleteById(id);
+            return isDeleted
+        } else {
+            return -1; //404 not found
+        }
     }
 
 
