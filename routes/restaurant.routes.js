@@ -25,7 +25,11 @@ module.exports = function(app) {
         const allRestaurants = await RestaurantController.getAllRestaurants();
 
         if(allRestaurants){
-            res.status(200).json(allRestaurants);
+            if(allRestaurants.length > 0) {
+                res.status(200).json(allRestaurants);
+            } else {
+                res.status(204).end();
+            }
         }
         res.status(500).end();
     });
@@ -37,7 +41,11 @@ module.exports = function(app) {
         const randRest = await RestaurantController.getRandomRestaurant();
 
         if(randRest){
-            res.status(200).json(randRest);
+            if(randRest === -1){
+                res.status(204).end();
+            } else if (randRest){
+                res.status(200).json(randRest);
+            }
         }
         res.status(500).end();
     });

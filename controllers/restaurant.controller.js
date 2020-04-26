@@ -38,13 +38,16 @@ class RestaurantController {
      */
     static async getRandomRestaurant(){
         const allRestaurants = await RestaurantDAO.getAll();
-        if (allRestaurants.length > 0){
-            const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
 
-            return allRestaurants[randomNumber];
-        } else {
-            return undefined;
+        if(allRestaurants){
+            if (allRestaurants.length > 0){
+                const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
+                return allRestaurants[randomNumber];
+            } else {
+                return -1;
+            }
         }
+        return undefined;
     }
 
     /**
