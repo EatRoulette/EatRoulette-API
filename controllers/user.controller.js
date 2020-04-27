@@ -59,6 +59,51 @@ class UserController extends CoreController{
             })
             .catch(next);
     }
+
+    static async delete_user(req,res,next){
+        const id = req.params.userId;
+        Promise.resolve()
+            .then(() =>  UserController.userNotExist(req,res,next,id))
+            .then(() => {
+                // Check of product alreadyExist to be sure we avoid duplicate Name
+                if(UserDao.deleteById(id)){
+                    res.status(200).json({
+                        message: `The user ${id} has been delete with success`
+                    }).end();
+                }
+            })
+            .catch(next);
+    }
+
+    static async modif_user(req, res, next){
+        const id = req.params.userId;
+        let data = req.body;
+        Promise.resolve()
+            .then(() =>
+                UserController.userNotExist(req,res,next,id)
+            )
+            .then(user => {
+                //TODO check if email already exist
+                user.set(data);
+                return user.save();
+            })
+            .then(user => UserController.render(user))
+            .then(user => res.json(user))
+            .catch(next);
+    }
+
+    static async userNotExist(req,res,next,id){
+        return Promise.resolve().then(() => UserDao.findById(id))
+            .then(user =>{
+                if(!user){
+                    res.status(409).json({
+                        message: `The user ${id} doesn't exist`
+                    });
+                    throw new Error(`The user ${id} doesn't exist`);
+                }
+                return user;
+            });
+    }
 }
 UserController.prototype.modelName = 'User';
 module.exports = UserController;
