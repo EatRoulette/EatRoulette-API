@@ -161,6 +161,7 @@ class Core {
                 })
         )
     }
+
     // -------------------------
     // Processus de création d'un nouveau model
     // -------------------------
@@ -178,6 +179,7 @@ class Core {
                 .then(checkedData => this.getModel().create(checkedData))
         )
     }
+
     // -------------------------
     // Processus de création de plusieurs nouveaux models
     // -------------------------
@@ -229,7 +231,8 @@ class Core {
             }
             // On sauvegarde les données dans l'objet
             result[key] = data[key]
-        })
+        });
+
         return result
     }
     // -------------------------
@@ -272,6 +275,7 @@ class Core {
         return mongoose.model(this.prototype.modelName)
     }
 }
+
 // Nom du model associé au service
 Core.prototype.modelName = 'Default';
 module.exports = Core;
