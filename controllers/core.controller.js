@@ -69,56 +69,6 @@ class Core {
                 )
         )
     }
-    // -------------------------
-    // Retourne le render d'un document
-    // Note : "id" peut être un ID ou un
-    // objet de recherche
-    // -------------------------
-    static read(id, options = {}) {
-        return Promise.resolve()
-            .then(() =>
-                typeof id === 'object'
-                    ? this.getModel()
-                        .findOne(id)
-                        .exec()
-                    : this.getModel()
-                        .findById(id)
-                        .exec()
-            )
-            .then(model => {
-                if (!model) {
-                    throw new Error(`Unknow item ${id}`)
-                }
-                return this.render(model, options)
-            })
-    }
-    // -------------------------
-    // Supprime un ou des documents
-    // -------------------------
-    static remove(id) {
-        return Promise.resolve().then(() =>
-            typeof id === 'object'
-                ? // On lance la suppression des documents
-                this.getModel()
-                    // On recherche la liste à supprimer
-                    .find(id, '_id')
-                    .then(list =>
-                        Promise.all([
-                            // On récupère les ID des documents
-                            list.map(l => l.get('id')),
-                            // On supprime avec la recherche
-                            this.getModel().deleteMany(id),
-                        ])
-                    )
-                    // On retourne la liste des ID supprimés
-                    .then(([ids]) => ids)
-                : // On supprime le document
-                this.getModel()
-                    .findOneAndDelete({ _id: id })
-                    .exec()
-                    .then(() => id)
-        )
-    }
 
     // -------------------------
     // Méthode de mise à jour d'un document
@@ -255,18 +205,6 @@ class Core {
             else if (data[key] !== undefined) filteredFields[key] = data[key]
         })
         return filteredFields
-    }
-    // -------------------------
-    // Transforme une chaine de caractères
-    // comportant des séparateurs en tableau
-    // -------------------------
-    static splitString(value, sep, cast = String) {
-        if (typeof value === 'number') return [value]
-        if (value.indexOf(sep) >= 0) {
-            // Il y a plusieurs valeurs, on les transforme en tableau
-            return value.split(sep).map(val => cast(val.trim()))
-        }
-        return [value]
     }
     // -------------------------
     // Retourne le model mongoose associé
