@@ -12,7 +12,7 @@ module.exports = function(app) {
         if(ret === -1){
             res.status(400).end();
         } else if(ret){
-            res.status(200).json(ret);
+            res.status(201).json(ret);
         }
         res.status(500).end();
 
@@ -54,14 +54,32 @@ module.exports = function(app) {
      * Get restaurant by id
      */
     app.get('/restaurant/:id', bodyParser.json(), async (req, res) => {
-        res.status(501).end();
+        const ret = await RestaurantController.getRestaurantsById(req.params.id);
+
+        if(ret){
+            if(ret === -1){
+                res.status(404).end();
+            } else if (ret) {
+                res.status(200).json(ret);
+            }
+        }
+        res.status(500).end();
     });
 
     /**
      * Modify restaurant by id
      */
     app.put('/restaurant/:id', bodyParser.json(), async (req, res) => {
-        res.status(501).end();
+        const ret = await RestaurantController.modifyById(req.params.id, req);
+
+        if(ret === -1) {
+            res.status(400).end()
+        } else if (ret === -2){
+            res.status(404).end()
+        } else if(ret){
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
     });
 
     /**
