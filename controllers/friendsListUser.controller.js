@@ -8,14 +8,15 @@ class FriendsListUserController extends CoreController {
 
     static render(list,options = {}){
         const populates = [
-            {path:'users'}
+            {path:'users'},
+            {path:'creator'}
         ];
         return super.render(list, { ...options,populates});
     }
 
     static async create_friendsListUser(req, res, next) {
         let data = req.body;
-        const authorizedFields = ['name','users'];
+        const authorizedFields = ['name','users','creator'];
         Promise.resolve().then(() => {
             return FriendsListUserDao.findOne({name:req.body.name});
         })
