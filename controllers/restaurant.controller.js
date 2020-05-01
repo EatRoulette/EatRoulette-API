@@ -66,6 +66,23 @@ class RestaurantController {
         return undefined;
     }
 
+
+    static async modifyById(id, req){
+        let modifiedRestaurant = await this.buildRestaurant(req);
+
+        if(modifiedRestaurant){
+            modifiedRestaurant = await RestaurantDAO.modifyById(id, modifiedRestaurant);
+            if(modifiedRestaurant){
+                return modifiedRestaurant;
+            } else {
+                return -2;  //Not found
+            }
+        } else {
+            return -1; //Bad request
+        }
+
+    }
+
     /**
      * Delete restaurant if exist
      * @param id
