@@ -1,3 +1,6 @@
 module.exports = {
-    RestaurantController: require('./restaurant.controller')
+    UserController: require('./user.controller'),
+    SessionController: require('./session.controller'),
+    RestaurantController: require('./restaurant.controller'),
+    FriendsListUserController: require('./friendsListUser.controller')
 };
