@@ -33,6 +33,22 @@ class RestaurantController {
     }
 
     /**
+     * Get restaurant by id
+     * @param id
+     * @returns {Promise<undefined>}
+     */
+    static async getRestaurantsById(id){
+        const restaurant = await RestaurantDAO.getById(id);
+
+        if(restaurant){
+            return restaurant;
+        } else {
+            return -1;
+        }
+        return undefined;
+    }
+
+    /**
      * Return a random restaurant
      * @returns {Promise<*>}
      */
