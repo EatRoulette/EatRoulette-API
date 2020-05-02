@@ -2,5 +2,6 @@ module.exports = {
     User: require('./user.model'),
     Session: require('./session.model'),
     Restaurant: require('./restaurant.model'),
-    FriendsListUser: require('./friendsListUser.model')
+    FriendsListUser: require('./friendsListUser.model'),
+    TypeRestaurant: require('./type-restaurant.model')
 };

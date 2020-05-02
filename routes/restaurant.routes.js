@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
+const TypeRestaurantController = require('../controllers').TypeRestaurantController;
 
 module.exports = function(app) {
 
@@ -97,6 +98,92 @@ module.exports = function(app) {
         }
         res.status(500).end();
     });
+
+    /**
+     * Type restaurants management
+     */
+
+    /**
+     * Create restaurant type
+     */
+    app.post('/type/restaurant', bodyParser.json(), async (req, res) => {
+        const ret = await TypeRestaurantController.saveType(req);
+
+        if(ret === -2){
+            res.status(409).end();
+        }else if(ret === -1){
+            res.status(400).end();
+        } else if(ret){
+            res.status(201).json(ret);
+        }
+        res.status(500).end();
+
+    });
+
+    /**
+     * Get all restaurant types
+     */
+    app.get('/type/restaurant', async (req, res) => {
+        const allTypes = await TypeRestaurantController.getTypes();
+
+        if(allTypes){
+            if(allTypes.length > 0) {
+                res.status(200).json(allTypes);
+            } else {
+                res.status(204).end();
+            }
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Get restaurant type by id
+     */
+    app.get('/type/restaurant/:id', async (req, res) => {
+        const ret = await TypeRestaurantController.getTypeById(req.params.id);
+
+        if(ret){
+            if(ret === -1){
+                res.status(404).end();
+            } else if (ret) {
+                res.status(200).json(ret);
+            }
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Update restaurant type
+     */
+    app.put('/type/restaurant/:id', bodyParser.json(), async (req, res) => {
+        const ret = await TypeRestaurantController.modifyById(req.params.id, req);
+
+        if(ret === -3 ){
+            res.status(409).end();
+        }else if(ret === -1) {
+            res.status(400).end();
+        } else if (ret === -2){
+            res.status(404).end();
+        } else if(ret){
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Delete restaurant type by id
+     */
+    app.delete('/type/restaurant/:id', async (req, res) => {
+        const ret = await TypeRestaurantController.deleteById(req.params.id);
+
+        if(ret === -1) {
+            res.status(404).json({
+                message: "This type does not exist"
+            });
+        } else if(ret){
+            res.status(200).end();
+        }
+        res.status(500).end();    });
 
 
 };
