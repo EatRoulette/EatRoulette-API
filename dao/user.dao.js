@@ -8,7 +8,7 @@ class UserDao {
      * @returns {Promise<User>}
      */
     static async saveUser(user) {
-        await user.save();
+        await User.save();
     }
 
     /**
