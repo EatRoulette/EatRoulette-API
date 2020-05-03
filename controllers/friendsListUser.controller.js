@@ -18,15 +18,16 @@ class FriendsListUserController extends CoreController {
         let data = req.body;
         const authorizedFields = ['name','users','creator'];
         Promise.resolve().then(() => {
-            return FriendsListUserDao.findOne({name:req.body.name});
+            return FriendsListUserDao.find( {$and:[{"creator":{$eq:data.creator}},{"name": {$eq:req.body.name}}]}
+            );
         })
             .then(friendsListUser => {
-                if(friendsListUser){
+                if(friendsListUser.length){
                     res.status(409).json({
                         status: 409,
-                        message:"This friendsListUser already exist"
+                        message:"This friendsListUser name already exist in our friendsList"
                     }).end();
-                    throw new Error("This friendsListUser already exist");
+                    throw new Error("This friendsListUser name already exist in our friendsList");
                 }
 
                 if(!Array.isArray(data.users)){
@@ -53,33 +54,12 @@ class FriendsListUserController extends CoreController {
     };
 
     static async friendsListUsers_get_all(req, res, next) {
-        FriendsListUserModel
-            .find().populate("users")
-            .select("name users _id")
-            .exec()
-            .then(docs => {
-                const response = {
-                    count: docs.length,
-                    friendsListUsers: docs.map(doc => {
-                        return {
-                            name: doc.name,
-                            users: doc.users,
-                            _id: doc._id,
-                            request: {
-                                type: 'GET',
-                                url: `http://localhost:3000/friendsListUser/${doc._id}`
-                            }
-                        };
-                    })
-                };
-                res.status(200).json(response);
-
-            }).catch(err =>{
-            res.status(400).json({
-                message: "Bad request",
-                err,
-            });
-        });
+        const order = req.query.order || 'create_at';
+        Promise.resolve()
+            .then(()=> FriendsListUserController.find({}))
+            .then(list => FriendsListUserController.render(list))
+            .then(friendsListUser => res.status(200).json(friendsListUser))
+                .catch(next);
     };
 
     static async get_friendsListUser_by_id(req,res,next) {
