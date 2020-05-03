@@ -121,6 +121,20 @@ module.exports = function(app) {
     });
 
     /**
+     * Add a type to a restaurant
+     */
+    app.post('/type/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addTypeToRestaurant(req.params.idRestaurant, req.body.idType);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
      * Get all restaurant types
      */
     app.get('/type/restaurant', async (req, res) => {

@@ -20,7 +20,7 @@ class TypeRestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allTypes = await TypeRestaurant.find();
+        const allTypes = await TypeRestaurant.find().populate('restaurants', '-__v -_id -types');
 
         return allTypes;
     }
@@ -32,7 +32,7 @@ class TypeRestaurantDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const type = await TypeRestaurant.findOne({_id: id});
+            const type = await TypeRestaurant.findOne({_id: id}).populate('restaurants', '-__v -_id -types');
             return type;
         }
         else {
@@ -46,10 +46,27 @@ class TypeRestaurantDao {
      * @returns {Promise<undefined|*>}
      */
     static async getByName(name){
-        const type = await TypeRestaurant.findOne({name: name});
+        const type = await TypeRestaurant.findOne({name: name}).populate('restaurants', '-__v -_id -types');
 
         if(type) {
             return type;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Push a restaurant into a type
+     * @param idType
+     * @param idRestaurant
+     * @returns {Promise<void>}
+     */
+    static async pushRestaurantInType(idType, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idType) && mongoose.Types.ObjectId.isValid(idRestaurant)){
+            const type = await this.getById(idType);
+            type.restaurants.push(idRestaurant);
+            const ret = await type.save();
+            return ret;
         } else {
             return undefined;
         }
