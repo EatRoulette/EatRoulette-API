@@ -3,5 +3,6 @@ module.exports = {
     Session: require('./session.model'),
     Restaurant: require('./restaurant.model'),
     FriendsListUser: require('./friendsListUser.model'),
-    TypeRestaurant: require('./type-restaurant.model')
+    TypeRestaurant: require('./type-restaurant.model'),
+    Ticket: require('./ticket.model')
 };
