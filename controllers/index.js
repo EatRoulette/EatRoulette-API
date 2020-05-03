@@ -3,5 +3,6 @@ module.exports = {
     SessionController: require('./session.controller'),
     RestaurantController: require('./restaurant.controller'),
     FriendsListUserController: require('./friendsListUser.controller'),
-    TicketController: require('./ticket.controller'),
+    TypeRestaurantController: require('./type-restaurant.controller'),
+    TicketController: require('./ticket.controller')
 };

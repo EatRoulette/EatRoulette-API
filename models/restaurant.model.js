@@ -9,6 +9,10 @@ const restaurantSchema = new Schema({
     city: String,
     postalCode: String,
     dep: String,
+    types: [{
+        type: Schema.Types.ObjectId,
+        ref: 'TypeRestaurant'
+    }],
     _idSituation: String,
     // _idSituation: {
     //     type: Schema.Types.ObjectId,
