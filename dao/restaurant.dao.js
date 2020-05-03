@@ -40,6 +40,16 @@ class RestaurantDao {
         };
     }
 
+    static async modifyById(id, updates){
+        if(mongoose.Types.ObjectId.isValid(id)){
+            return Restaurant.findOneAndUpdate({_id: id}, updates,{
+                new: true //To return model after update
+            });
+        } else {
+            return undefined;
+        }
+    }
+
     /**
      * Delete by id
      * @param id

@@ -33,6 +33,22 @@ class RestaurantController {
     }
 
     /**
+     * Get restaurant by id
+     * @param id
+     * @returns {Promise<undefined>}
+     */
+    static async getRestaurantsById(id){
+        const restaurant = await RestaurantDAO.getById(id);
+
+        if(restaurant){
+            return restaurant;
+        } else {
+            return -1;
+        }
+        return undefined;
+    }
+
+    /**
      * Return a random restaurant
      * @returns {Promise<*>}
      */
@@ -48,6 +64,23 @@ class RestaurantController {
             }
         }
         return undefined;
+    }
+
+
+    static async modifyById(id, req){
+        let modifiedRestaurant = await this.buildRestaurant(req);
+
+        if(modifiedRestaurant){
+            modifiedRestaurant = await RestaurantDAO.modifyById(id, modifiedRestaurant);
+            if(modifiedRestaurant){
+                return modifiedRestaurant;
+            } else {
+                return -2;  //Not found
+            }
+        } else {
+            return -1; //Bad request
+        }
+
     }
 
     /**
