@@ -14,6 +14,7 @@ class RestaurantController {
 
         if(restaurant){
             restaurant = await RestaurantDAO.saveRestaurant(restaurant);
+            restaurant = await this.getRestaurantsById(restaurant._id);
             return restaurant;
         } else {
             return -1; //Bad request
@@ -81,14 +82,28 @@ class RestaurantController {
         const isAddToRest = RestaurantDAO.pushTypeInRestaurant(idType, idRestaurant);
 
         if (await isAddToType && await isAddToRest){
-            return isAddToRest;
+            return await this.getRestaurantsById(idRestaurant);
         }
         return undefined;
-
     }
 
-    static async delTypeToRestaurant(idRestaurant, type){
+    /**
+     * Delete a type of a restaurant
+     * @param idRestaurant
+     * @param idType
+     * @returns {Promise<undefined|number>}
+     */
+    static async delTypeToRestaurant(idRestaurant, idType){
+        if(!idRestaurant, !idType){
+            return -1; //Bad request
+        }
+        const isAddToType = await TypeRestaurantDAO.popRestaurantInType(idType, idRestaurant);
+        const isAddToRest = await RestaurantDAO.popTypeInRestaurant(idType, idRestaurant);
 
+        if (isAddToType && isAddToRest){
+            return await this.getRestaurantsById(idRestaurant);
+        }
+        return undefined;
     }
 
     /**

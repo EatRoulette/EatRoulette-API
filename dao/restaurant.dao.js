@@ -57,6 +57,29 @@ class RestaurantDao {
         }
     }
 
+    /**
+     *
+     * @param idType
+     * @param idRestaurant
+     * @returns {Promise<undefined|any>}
+     */
+    static async popTypeInRestaurant(idType, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
+            const rest = await this.getById(idRestaurant);
+            rest.types.remove(idType);
+            const ret = await rest.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Update by id
+     * @param id
+     * @param updates
+     * @returns {Promise<undefined|*>}
+     */
     static async modifyById(id, updates){
         if(mongoose.Types.ObjectId.isValid(id)){
             return Restaurant.findOneAndUpdate({_id: id}, updates,{

@@ -185,6 +185,20 @@ module.exports = function(app) {
     });
 
     /**
+     * Delete a type in a restaurant
+     */
+    app.delete('/type/restaurant/del/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.delTypeToRestaurant(req.params.idRestaurant, req.body.idType);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else if(ret){
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
      * Delete restaurant type by id
      */
     app.delete('/type/restaurant/:id', async (req, res) => {
@@ -197,7 +211,7 @@ module.exports = function(app) {
         } else if(ret){
             res.status(200).end();
         }
-        res.status(500).end();    });
-
+        res.status(500).end();
+    });
 
 };

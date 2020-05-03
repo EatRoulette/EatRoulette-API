@@ -73,6 +73,23 @@ class TypeRestaurantDao {
     }
 
     /**
+     * Remove a restaurant in the type
+     * @param idType
+     * @param idRestaurant
+     * @returns {Promise<undefined|*>}
+     */
+    static async popRestaurantInType(idType, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idType) && mongoose.Types.ObjectId.isValid(idRestaurant)){
+            const type = await this.getById(idType);
+            type.restaurants.remove(idRestaurant);
+            let ret = await type.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
      * Update the document by his id
      * @param id
      * @param updates
@@ -82,7 +99,7 @@ class TypeRestaurantDao {
         if(mongoose.Types.ObjectId.isValid(id)){
             return TypeRestaurant.findOneAndUpdate({_id: id}, updates,{
                 new: true //To return model after update
-            });
+            }).populate('restaurants', '-__v -_id -types');
         } else {
             return undefined;
         }
@@ -99,7 +116,7 @@ class TypeRestaurantDao {
         await TypeRestaurant.deleteOne({_id: id}, (err) => {
             if (err) ret =  false;
             ret = true;
-        })
+        });
         return ret;
     }
 
