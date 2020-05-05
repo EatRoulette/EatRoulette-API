@@ -20,7 +20,7 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allRestaurants = await Restaurant.find();
+        const allRestaurants = await Restaurant.find().populate('types', '-_id -__v -restaurants');
 
         return allRestaurants;
     }
@@ -32,12 +32,62 @@ class RestaurantDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const restaurant = await Restaurant.findOne({_id: id});
+            const restaurant = await Restaurant.findOne({_id: id}).populate('types', '-_id -__v -restaurants');
             return restaurant;
         }
         else {
             return undefined;
         };
+    }
+
+    /**
+     * Push a type into a restaurant
+     * @param idType
+     * @param idRestaurant
+     * @returns {Promise<void>}
+     */
+    static async pushTypeInRestaurant(idType, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
+            const rest = await this.getById(idRestaurant);
+            rest.types.push(idType);
+            const ret = await rest.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     *
+     * @param idType
+     * @param idRestaurant
+     * @returns {Promise<undefined|any>}
+     */
+    static async popTypeInRestaurant(idType, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
+            const rest = await this.getById(idRestaurant);
+            rest.types.remove(idType);
+            const ret = await rest.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Update by id
+     * @param id
+     * @param updates
+     * @returns {Promise<undefined|*>}
+     */
+    static async modifyById(id, updates){
+        if(mongoose.Types.ObjectId.isValid(id)){
+            return Restaurant.findOneAndUpdate({_id: id}, updates,{
+                new: true //To return model after update
+            });
+        } else {
+            return undefined;
+        }
     }
 
     /**
