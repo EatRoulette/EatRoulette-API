@@ -13,11 +13,14 @@ const restaurantSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'TypeRestaurant'
     }],
-    _idSituation: String,
-    // _idSituation: {
-    //     type: Schema.Types.ObjectId,
-    //     ref: 'Situation'
-    // }
+    allergens: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Allergen'
+    }],
+    characteristics: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Characteristic'
+    }]
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
