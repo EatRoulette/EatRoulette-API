@@ -1,5 +1,6 @@
 const RestaurantDAO = require('../dao').RestaurantDAO;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
+const AllergenDAO = require('../dao').AllergenDAO;
 const Tools = require('../utils').Util;
 
 class RestaurantController {
@@ -88,6 +89,25 @@ class RestaurantController {
     }
 
     /**
+     * Add an allergen to a restaurant
+     * @param idRestaurant
+     * @param idAllergen
+     * @returns {Promise<void|undefined>}
+     */
+    static async addAllergenToRestaurant(idRestaurant, idAllergen){
+        if(!idRestaurant, !idAllergen){
+            return -1; //Bad request
+        }
+        const isAddToAllerg = AllergenDAO.pushRestaurantInAllergen(idAllergen, idRestaurant);
+        const isAddToRest = RestaurantDAO.pushAllergenInRestaurant(idAllergen, idRestaurant);
+
+        if (await isAddToAllerg && await isAddToRest){
+            return await this.getRestaurantsById(idRestaurant);
+        }
+        return undefined;
+    }
+
+    /**
      * Delete a type of a restaurant
      * @param idRestaurant
      * @param idType
@@ -102,6 +122,25 @@ class RestaurantController {
 
         if (isAddToType && isAddToRest){
             return await this.getRestaurantsById(idRestaurant);
+        }
+        return undefined;
+    }
+
+    /**
+     * Delete a allergen of a restaurant
+     * @param idAllergen
+     * @param idRestaurant
+     * @returns {Promise<undefined|number>}
+     */
+    static async delAllergenToRestaurant(idAllergen, idRestaurant){
+        if(!idAllergen, !idRestaurant){
+            return -1; //Bad request
+        }
+        const isAddToType = await AllergenDAO.popRestaurantInAllergen(idAllergen, idRestaurant);
+        const isAddToRest = await RestaurantDAO.popAllergenInRestaurant(idAllergen, idRestaurant);
+
+        if (isAddToType && isAddToRest){
+            return await this.getRestaurantsById(idAllergen);
         }
         return undefined;
     }

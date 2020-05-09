@@ -20,7 +20,18 @@ class AllergenDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allAllergens = await Allergen.find().populate('restaurants', '-__v -_id -allergens');
+        const allAllergens = await Allergen.find()
+            // .populate('restaurants', '-__v -_id -allergens')
+            .populate({
+                path: 'restaurants',
+                model: 'Restaurant',
+                select: 'id name types address city postalCode dep',
+                populate: {
+                    path: 'types',
+                    model: 'TypeRestaurant',
+                    select: 'name'
+                }
+            });
 
         return allAllergens;
     }
@@ -32,7 +43,17 @@ class AllergenDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const allerg = await Allergen.findOne({_id: id}).populate('restaurants', '-__v -_id -allergens');
+            const allerg = await Allergen.findOne({_id: id})
+                .populate({
+                    path: 'restaurants',
+                    model: 'Restaurant',
+                    select: 'id name types address city postalCode dep',
+                    populate: {
+                        path: 'types',
+                        model: 'TypeRestaurant',
+                        select: 'name'
+                    }
+                });
             return allerg;
         }
         else {
@@ -46,7 +67,17 @@ class AllergenDao {
      * @returns {Promise<undefined|*>}
      */
     static async getByName(name){
-        const allerg = await Allergen.findOne({name: name}).populate('restaurants', '-__v -_id -allergens');
+        const allerg = await Allergen.findOne({name: name})
+            .populate({
+                path: 'restaurants',
+                model: 'Restaurant',
+                select: 'id name types address city postalCode dep',
+                populate: {
+                    path: 'types',
+                    model: 'TypeRestaurant',
+                    select: 'name'
+                }
+            });
 
         if(allerg) {
             return allerg;
@@ -78,9 +109,10 @@ class AllergenDao {
      * @param idRestaurant
      * @returns {Promise<undefined|*>}
      */
-    static async popRestaurantInType(idAllergen, idRestaurant){
+    static async popRestaurantInAllergen(idAllergen, idRestaurant){
         if(mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idRestaurant)){
             const allerg = await this.getById(idAllergen);
+            console.log(allerg);
             allerg.restaurants.remove(idRestaurant);
             let ret = await allerg.save();
             return ret;
@@ -98,7 +130,7 @@ class AllergenDao {
     static async pushUserInAllergen(idAllergen, idUser){
         if(mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idUser)){
             const allerg = await this.getById(idAllergen);
-            allerg.restaurants.push(idUser);
+            allerg.users.push(idUser);
             const ret = await allerg.save();
             return ret;
         } else {
@@ -115,7 +147,7 @@ class AllergenDao {
     static async popUserInType(idType, idUser){
         if(mongoose.Types.ObjectId.isValid(idType) && mongoose.Types.ObjectId.isValid(idUser)){
             const allerg = await this.getById(idType);
-            allerg.restaurants.remove(idUser);
+            allerg.users.remove(idUser);
             let ret = await allerg.save();
             return ret;
         } else {
@@ -133,7 +165,17 @@ class AllergenDao {
         if(mongoose.Types.ObjectId.isValid(id)){
             return Allergen.findOneAndUpdate({_id: id}, updates,{
                 new: true //To return model after update
-            }).populate('restaurants', '-__v -_id -allergens');
+            })
+                .populate({
+                    path: 'restaurants',
+                    model: 'Restaurant',
+                    select: 'id name types address city postalCode dep',
+                    populate: {
+                        path: 'types',
+                        model: 'TypeRestaurant',
+                        select: 'name'
+                    }
+                });
         } else {
             return undefined;
         }

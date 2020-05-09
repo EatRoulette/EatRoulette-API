@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
+const AllergenController = require('../controllers').AllergenController;
 
 module.exports = function(app) {
 
@@ -100,6 +101,36 @@ module.exports = function(app) {
     });
 
     /**
+     * Allergen and characteristic management
+     */
+    /**
+     * Add an allergen to restaurant
+     */
+    app.post('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addAllergenToRestaurant(req.params.idRestaurant, req.body.idAllergen);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    app.delete('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.delAllergenToRestaurant(req.params.idRestaurant, req.body.idAllergen);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+
+
+    /**
      * Type restaurants management
      */
 
@@ -107,7 +138,7 @@ module.exports = function(app) {
      * Create restaurant type
      */
     app.post('/type/restaurant', bodyParser.json(), async (req, res) => {
-        const ret = await TypeRestaurantController.saveType(req);
+        const ret = await REs.saveType(req);
 
         if(ret === -2){
             res.status(409).end();
