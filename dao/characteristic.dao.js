@@ -8,7 +8,7 @@ class CharacteristicDao {
      * @param charac
      * @returns {Promise<*>}
      */
-    static async saveAllergen(charac){
+    static async saveCharac(charac){
         const charac1 = new Characteristic(charac);
         const ret = await charac1.save();
 
