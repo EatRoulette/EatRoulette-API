@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
+const AllergenController = require('../controllers').AllergenController;
 
 module.exports = function(app) {
 
@@ -98,6 +99,71 @@ module.exports = function(app) {
         }
         res.status(500).end();
     });
+
+    /**
+     * Allergen and characteristic management
+     */
+
+    /**
+     * Add an allergen to restaurant
+     */
+    app.post('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addAllergenToRestaurant(req.params.idRestaurant, req.body.idAllergen);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Delete an allergen of a restaurant
+     */
+    app.delete('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.delAllergenToRestaurant(req.body.idAllergen, req.params.idRestaurant);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Characteristic management
+     */
+
+    /**
+     * Add a characteristic to a restaurant
+     */
+    app.post('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addCharacteristicToRestaurant(req.params.idRestaurant, req.body.idCharac);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Delete a restaurant characteristic
+     */
+    app.delete('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.delCharacteristicToRestaurant(req.body.idCharac, req.params.idRestaurant);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
 
     /**
      * Type restaurants management
