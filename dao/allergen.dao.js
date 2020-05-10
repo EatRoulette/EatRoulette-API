@@ -112,7 +112,6 @@ class AllergenDao {
     static async popRestaurantInAllergen(idAllergen, idRestaurant){
         if(mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idRestaurant)){
             const allerg = await this.getById(idAllergen);
-            console.log(allerg);
             allerg.restaurants.remove(idRestaurant);
             let ret = await allerg.save();
             return ret;

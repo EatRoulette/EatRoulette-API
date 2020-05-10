@@ -103,6 +103,7 @@ module.exports = function(app) {
     /**
      * Allergen and characteristic management
      */
+
     /**
      * Add an allergen to restaurant
      */
@@ -117,8 +118,43 @@ module.exports = function(app) {
         res.status(500).end();
     });
 
+    /**
+     * Delete an allergen of a restaurant
+     */
     app.delete('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
-        const ret = await RestaurantController.delAllergenToRestaurant(req.params.idRestaurant, req.body.idAllergen);
+        const ret = await RestaurantController.delAllergenToRestaurant(req.body.idAllergen, req.params.idRestaurant);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Characteristic management
+     */
+
+    /**
+     * Add a characteristic to a restaurant
+     */
+    app.post('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addCharacteristicToRestaurant(req.params.idRestaurant, req.body.idCharac);
+
+        if(ret === -1){
+            res.status(400).end();
+        }else{
+            res.status(200).json(ret);
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Delete a restaurant characteristic
+     */
+    app.delete('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.delCharacteristicToRestaurant(req.body.idCharac, req.params.idRestaurant);
 
         if(ret === -1){
             res.status(400).end();
@@ -129,7 +165,6 @@ module.exports = function(app) {
     });
 
 
-
     /**
      * Type restaurants management
      */
@@ -138,7 +173,7 @@ module.exports = function(app) {
      * Create restaurant type
      */
     app.post('/type/restaurant', bodyParser.json(), async (req, res) => {
-        const ret = await REs.saveType(req);
+        const ret = await TypeRestaurantController.saveType(req);
 
         if(ret === -2){
             res.status(409).end();

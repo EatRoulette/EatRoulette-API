@@ -90,15 +90,15 @@ class CharacteristicDao {
     }
 
     /**
-     * Push a restaurant into an characteristic
+     * Push a user into an characteristic
      * @param idCharac
      * @param idUser
      * @returns {Promise<void>}
      */
-    static async pushUserInAllergen(idCharac, idUser){
+    static async pushUserInCharac(idCharac, idUser){
         if(mongoose.Types.ObjectId.isValid(idCharac) && mongoose.Types.ObjectId.isValid(idUser)){
             const charac = await this.getById(idCharac);
-            charac.restaurants.push(idUser);
+            charac.users.push(idUser);
             const ret = await charac.save();
             return ret;
         } else {
@@ -107,15 +107,15 @@ class CharacteristicDao {
     }
 
     /**
-     * Remove a restaurant in the characteristic
+     * Remove a user in the characteristic
      * @param idCharac
      * @param idUser
      * @returns {Promise<undefined|*>}
      */
-    static async popUserInType(idCharac, idUser){
+    static async popUserInCharacteristic(idCharac, idUser){
         if(mongoose.Types.ObjectId.isValid(idCharac) && mongoose.Types.ObjectId.isValid(idUser)){
             const charac = await this.getById(idCharac);
-            charac.restaurants.remove(idUser);
+            charac.users.remove(idUser);
             let ret = await charac.save();
             return ret;
         } else {

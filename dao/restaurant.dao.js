@@ -20,7 +20,7 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allRestaurants = await Restaurant.find().populate('types allergens', '-_id -__v -restaurants -users');
+        const allRestaurants = await Restaurant.find().populate('types allergens characteristics', '-_id -__v -restaurants -users');
 
         return allRestaurants;
     }
@@ -32,7 +32,7 @@ class RestaurantDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const restaurant = await Restaurant.findOne({_id: id}).populate('types allergens', '-_id -__v -restaurants -users');
+            const restaurant = await Restaurant.findOne({_id: id}).populate('types allergens characteristics', '-_id -__v -restaurants -users');
             return restaurant;
         }
         else {
@@ -75,6 +75,24 @@ class RestaurantDao {
     }
 
     /**
+     * Push a characteristic into a restaurant
+     * @param idCharac
+     * @param idRestaurant
+     * @returns {Promise<void>}
+     */
+    static async pushCharacInRestaurant(idCharac, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
+            const rest = await this.getById(idRestaurant);
+            rest.characteristics.push(idCharac);
+            const ret = await rest.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+
+    /**
      * Remove type in restaurant
      * @param idType
      * @param idRestaurant
@@ -101,6 +119,23 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idAllergen)){
             const rest = await this.getById(idRestaurant);
             rest.allergens.remove(idAllergen);
+            const ret = await rest.save();
+            return ret;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Remove characteristic in restaurant
+     * @param idCharac
+     * @param idRestaurant
+     * @returns {Promise<undefined|any>}
+     */
+    static async popCharacInRestaurant(idCharac, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
+            const rest = await this.getById(idRestaurant);
+            rest.characteristics.remove(idCharac);
             const ret = await rest.save();
             return ret;
         } else {

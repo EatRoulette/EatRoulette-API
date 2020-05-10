@@ -1,6 +1,7 @@
 const RestaurantDAO = require('../dao').RestaurantDAO;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
+const CharacteristicDAO = require('../dao').CharacteristicDAO;
 const Tools = require('../utils').Util;
 
 class RestaurantController {
@@ -108,6 +109,25 @@ class RestaurantController {
     }
 
     /**
+     * Add an allergen to a restaurant
+     * @param idRestaurant
+     * @param idCharac
+     * @returns {Promise<void|undefined>}
+     */
+    static async addCharacteristicToRestaurant(idRestaurant, idCharac){
+        if(!idRestaurant, !idCharac){
+            return -1; //Bad request
+        }
+        const isAddToCharac = CharacteristicDAO.pushRestaurantInCharac(idCharac, idRestaurant);
+        const isAddToRest = RestaurantDAO.pushCharacInRestaurant(idCharac, idRestaurant);
+
+        if (await isAddToCharac && await isAddToRest){
+            return await this.getRestaurantsById(idRestaurant);
+        }
+        return undefined;
+    }
+
+    /**
      * Delete a type of a restaurant
      * @param idRestaurant
      * @param idType
@@ -140,7 +160,26 @@ class RestaurantController {
         const isAddToRest = await RestaurantDAO.popAllergenInRestaurant(idAllergen, idRestaurant);
 
         if (isAddToType && isAddToRest){
-            return await this.getRestaurantsById(idAllergen);
+            return await this.getRestaurantsById(idRestaurant);
+        }
+        return undefined;
+    }
+
+    /**
+     * Delete characteristic to a restaurant
+     * @param idCharac
+     * @param idRestaurant
+     * @returns {Promise<undefined|number>}
+     */
+    static async delCharacteristicToRestaurant(idCharac, idRestaurant){
+        if(!idCharac, !idRestaurant){
+            return -1; //Bad request
+        }
+        const isAddToType = await CharacteristicDAO.popRestaurantInCharac(idCharac, idRestaurant);
+        const isAddToRest = await RestaurantDAO.popCharacInRestaurant(idCharac, idRestaurant);
+
+        if (isAddToType && isAddToRest){
+            return await this.getRestaurantsById(idRestaurant);
         }
         return undefined;
     }
