@@ -56,6 +56,12 @@ class SessionDao {
         else return false;
     }
 
+    /**
+     *
+     * @param idToken
+     * @returns {Promise<boolean|*>}
+     * @constructor
+     */
     static async UserIsAdmin(idToken) {
         let SessionUser = await Session.findOne({token: idToken}).exec();
         if (SessionUser.user) {
@@ -64,7 +70,6 @@ class SessionDao {
             return TrueFalse;
         }
         return false;
-
     }
 
     /**
