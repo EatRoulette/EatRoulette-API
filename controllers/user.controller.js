@@ -16,10 +16,10 @@ class UserController extends CoreController{
     static async subscribe(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
-        const authorizedFields = ['name','firstname','town','address','postalCode','phone','email','password','type'];
+        const authorizedFields = ['lastName','firstName','town','address','postalCode','phone','email','password','type'];
 
-        if( data.name &&
-            data.firstname &&
+        if( data.lastName &&
+            data.firstName &&
             data.town &&
             data.address &&
             data.postalCode &&
