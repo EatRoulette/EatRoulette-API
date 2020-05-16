@@ -5,10 +5,18 @@ const SecurityUtil = require('../utils').SecurityUtil;
 const SessionController = require('./session.controller');
 
 class UserController extends CoreController{
+
+    /**
+     * Subscribe function to create User
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async subscribe(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
-        const authorizedFields = ['login','email','password','type'];
+        const authorizedFields = ['name','firstname','email','password','type'];
         Promise.resolve().then(() => {
             return UserDao.findOne({email:data.email});
         }).then(user => {
@@ -25,6 +33,13 @@ class UserController extends CoreController{
             .catch(next);
     };
 
+    /**
+     * Create a token for the user
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async login(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
@@ -43,21 +58,38 @@ class UserController extends CoreController{
 
         const token = await SecurityUtil.randomToken();
         const session = await SessionController.create(user,token);
-        return session;
+
+        if(session){
+            res.status(200).json({
+                token: session.token
+            });
+        } else {
+            res.status(500).end();
+        }
     }
 
+    /**
+     * Close the session
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async logout(req, res, next){
 
-        let sessionId = req.params.sessionId;
-        Promise.resolve()
-            .then(() => {
-                SessionDao.deleteById(sessionId);
-                res.status(200).json({
-                    message: `The user has been logout`
-                }).end();
+        const token = req.params.token;
 
+        const ret = await SessionDao.deleteByToken(token);
+
+        if(ret){
+            res.status(200).json({
+                message: `The user has been logout`
             })
-            .catch(next);
+        } else {
+            res.status(404).json({
+                message: `Invalid token or user is not logged`
+            });
+        }
     }
 
     static async delete_user(req,res,next){
