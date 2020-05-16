@@ -16,21 +16,40 @@ class UserController extends CoreController{
     static async subscribe(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
-        const authorizedFields = ['name','firstname','email','password','type'];
-        Promise.resolve().then(() => {
-            return UserDao.findOne({email:data.email});
-        }).then(user => {
-            if(user){
+        const authorizedFields = ['name','firstname','town','address','postalCode','phone','email','password','type'];
+
+        if( data.name &&
+            data.firstname &&
+            data.town &&
+            data.address &&
+            data.postalCode &&
+            data.phone &&
+            data.email &&
+            data.password &&
+            data.type ){
+
+                Promise.resolve().then(() => {
+                    return UserDao.findOne({email:data.email});
+                }).then(user => {
+                    if(user){
+                        res.status(409).json({
+                            message:"This email already exist"
+                        }).end();
+                        throw new Error("This email already exist");
+                    }
+                    return UserController.create(data, {authorizedFields});
+                })
+                    .then(user => UserController.render(user))
+                    .then(user => res.json(user))
+                    .catch(next);
+        }else{
+            Promise.resolve().then(() => {
                 res.status(409).json({
-                    message:"This email already exist"
+                    message:"One or more fields are empty"
                 }).end();
-                throw new Error("This email already exist");
-            }
-            return UserController.create(data, {authorizedFields});
-        })
-            .then(user => UserController.render(user))
-            .then(user => res.json(user))
-            .catch(next);
+                throw new Error("One or more fields are empty");
+            }).then(() => res.json())
+        }
     };
 
     /**
