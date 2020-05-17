@@ -57,11 +57,11 @@ class CharacteristicDao {
 
     /**
      * Get characteristic by userId
-     * @param name
      * @returns {Promise<undefined|*>}
+     * @param userId
      */
     static async getByUserId(userId){
-        const charac = await Characteristic.findOne({user: userId}).populate('restaurants users', '-__v -_id -characteristics');
+        const charac = await Characteristic.find({user: userId}).populate('restaurants users', '-__v -_id -characteristics');
 
         if(charac) {
             return charac;

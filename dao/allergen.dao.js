@@ -195,6 +195,29 @@ class AllergenDao {
         return ret;
     }
 
+    /**
+     * Get allergen by userId
+     * @returns {Promise<undefined|*>}
+     * @param userId
+     */
+    static async getByUserId(userId){
+        const allergen = await Allergen.find({user: userId}).populate({
+            path: 'restaurants',
+            model: 'Restaurant',
+            select: 'id name types address city postalCode dep',
+            populate: {
+                path: 'types',
+                model: 'TypeRestaurant',
+                select: 'name'
+            }
+        });
+
+        if(allergen) {
+            return allergen;
+        } else {
+            return undefined;
+        }
+    }
 }
 
 module.exports = AllergenDao;

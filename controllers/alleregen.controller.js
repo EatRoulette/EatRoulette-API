@@ -112,6 +112,15 @@ class AllergenController {
         }
     }
 
+    /**
+     * Get allergen by user id
+     * @param id
+     * @returns {Promise<undefined|*>}
+     */
+    static async getByUserId(id){
+        return await AllergenDAO.getByUserId(id);
+
+    }
 }
 
 module.exports = AllergenController;

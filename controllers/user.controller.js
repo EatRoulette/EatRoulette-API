@@ -175,10 +175,8 @@ class UserController extends CoreController{
         }
     }
 
-    static async get_user_by_token(token){
-
-        const userId = await SessionDao.getUserByToken(token);
-
+    static async get_user_id_by_token(token){
+        return await SessionDao.getUserIDByToken(token);
     }
 
 }
