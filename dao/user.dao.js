@@ -21,6 +21,13 @@ class UserDao {
     /**
      * @returns {Promise<User[]>}
      */
+    static async find(json){
+        return User.find(json).exec();
+    }
+
+    /**
+     * @returns {Promise<User[]>}
+     */
     static async findOne(json){
         return User.findOne(json).exec();
     }

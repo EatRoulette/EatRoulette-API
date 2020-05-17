@@ -1,3 +1,6 @@
+//import {UserBean} from "../beans/user.bean";
+
+const UserBean = require('../beans/user.bean');
 const UserDao = require('../dao').UserDAO;
 const SessionDao = require('../dao').SessionDAO;
 const CoreController = require('./core.controller');
@@ -154,6 +157,22 @@ class UserController extends CoreController{
                 }
                 return user;
             });
+    }
+
+    static async get_user(req,res,next){
+
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        const userDao = await UserDao.findById(userId);
+        const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu);
+
+        if(user){
+            res.status(200).json({
+                user: user
+            });
+        } else {
+            res.status(500).end();
+        }
     }
 }
 UserController.prototype.modelName = 'User';
