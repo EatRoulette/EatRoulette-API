@@ -110,6 +110,17 @@ class CharacteristicController {
         }
     }
 
+
+    /**
+     * Get characteristics by user id
+     * @param id
+     * @returns {Promise<undefined|*>}
+     */
+    static async getByUserId(id){
+        return await CharacteristicDAO.getByUserId(id);
+
+    }
+
 }
 
 module.exports = CharacteristicController;

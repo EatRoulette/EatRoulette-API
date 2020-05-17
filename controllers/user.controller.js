@@ -174,6 +174,13 @@ class UserController extends CoreController{
             res.status(500).end();
         }
     }
+
+    static async get_user_by_token(token){
+
+        const userId = await SessionDao.getUserByToken(token);
+
+    }
+
 }
 UserController.prototype.modelName = 'User';
 module.exports = UserController;

@@ -15,6 +15,14 @@ const userSchema = new Schema({
     sessions: [{
         type: Schema.Types.ObjectId,
         ref: 'Session'
+    }],
+    allergens: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Allergen'
+    }],
+    characteristics: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Characteristic'
     }]
 });
 
