@@ -46,8 +46,9 @@ module.exports = function(app) {
                }
            });
         })
-        if(await UserController.update_user(userToUpdate, userId)){
-            res.status(200);
+        const update = await UserController.update_user(userToUpdate, userId)
+        if(update){
+            res.status(200).end();
         } else {
             res.status(500).end();
         }

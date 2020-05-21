@@ -6,6 +6,7 @@ class UserDao {
 
     /**
      * @param user {User}
+     * @param userId
      * @returns {Promise<User>}
      */
     static async updateUser(user, userId) {
