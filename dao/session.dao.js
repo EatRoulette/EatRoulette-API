@@ -94,7 +94,7 @@ class SessionDao {
 
     static async getUserIDByToken(token){
         const session = await Session.findOne({token: token}).exec();
-        return session.user
+        return session ? session.user : null
     }
 
     /**

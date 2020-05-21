@@ -10,13 +10,14 @@ module.exports = function(app) {
         const user = await UserController.get_user_by_id(userId)
 
         const situationBean = new SituationBean();
-
-        user.characteristics.forEach(userCharacteristic => {
-            situationBean.characteristics.push(userCharacteristic.id)
-        });
-        user.allergens.forEach(userAllergen => {
-            situationBean.allergens.push(userAllergen.id)
-        });
+        if(user){
+            user.characteristics.forEach(userCharacteristic => {
+                situationBean.characteristics.push(userCharacteristic.id)
+            });
+            user.allergens.forEach(userAllergen => {
+                situationBean.allergens.push(userAllergen.id)
+            });
+        }
 
         if(userId && user){
             res.status(200).json({
