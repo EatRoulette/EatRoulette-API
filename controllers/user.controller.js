@@ -1,6 +1,6 @@
-//import {UserBean} from "../beans/user.bean";
-
 const UserBean = require('../beans/user.bean');
+const AllergenBean = require('../beans/allergen.bean');
+const CharacteristicBean = require('../beans/characteristic.bean');
 const UserDao = require('../dao').UserDAO;
 const SessionDao = require('../dao').SessionDAO;
 const CoreController = require('./core.controller');
@@ -159,13 +159,10 @@ class UserController extends CoreController{
             });
     }
 
-    static async get_user(req,res,next){
-
+    static async get_user(req,res){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
-        const userDao = await UserDao.findById(userId);
-        const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu);
-
+        const user = this.get_user_by_id(userId);
         if(user){
             res.status(200).json({
                 user: user
@@ -173,6 +170,20 @@ class UserController extends CoreController{
         } else {
             res.status(500).end();
         }
+    }
+
+    static async get_user_by_id(userId){
+        const userDao = await UserDao.findById(userId);
+        const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu);
+        user.allergens = [];
+        user.characteristics = [];
+        userDao.allergens.forEach(allergen => user.allergens.push(new AllergenBean(allergen.id, allergen.name)))
+        userDao.characteristics.forEach(characteristic => user.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
+        return user;
+    }
+
+    static async update_user(userUpdate, userId){
+        return await UserDao.updateUser(userUpdate, userId);
     }
 
     static async get_user_id_by_token(token){

@@ -9,10 +9,8 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async saveRestaurant(restaurant){
-        const restaurant1 = new Restaurant(restaurant)
-        const ret = await restaurant1.save();
-
-        return ret;
+        const newRestaurant = new Restaurant(restaurant)
+        return await newRestaurant.save();
     }
 
     /**
@@ -20,9 +18,7 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allRestaurants = await Restaurant.find().populate('types allergens characteristics', '-_id -__v -restaurants -users');
-
-        return allRestaurants;
+        return await Restaurant.find().populate('types allergens characteristics', '-_id -__v -restaurants -users');
     }
 
     /**
@@ -32,8 +28,7 @@ class RestaurantDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const restaurant = await Restaurant.findOne({_id: id}).populate('types allergens characteristics', '-_id -__v -restaurants -users');
-            return restaurant;
+            return await Restaurant.findOne({_id: id}).populate('types allergens characteristics', '-_id -__v -restaurants -users');
         }
         else {
             return undefined;
@@ -50,8 +45,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
             const rest = await this.getById(idRestaurant);
             rest.types.push(idType);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
@@ -67,8 +61,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idAllergen)){
             const rest = await this.getById(idRestaurant);
             rest.allergens.push(idAllergen);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
@@ -84,8 +77,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
             const rest = await this.getById(idRestaurant);
             rest.characteristics.push(idCharac);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
@@ -102,8 +94,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
             const rest = await this.getById(idRestaurant);
             rest.types.remove(idType);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
@@ -119,8 +110,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idAllergen)){
             const rest = await this.getById(idRestaurant);
             rest.allergens.remove(idAllergen);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
@@ -136,8 +126,7 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
             const rest = await this.getById(idRestaurant);
             rest.characteristics.remove(idCharac);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }

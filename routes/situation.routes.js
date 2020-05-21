@@ -7,18 +7,18 @@ const bodyParser = require('body-parser');
 module.exports = function(app) {
     app.get('/situation/:token', async (req, res) => {
         const userId = await UserController.get_user_id_by_token(req.params.token)
-        const userCharacteristics = await CharacteristicController.getByUserId(userId);
-        const userAllergens = await AllergenController.getByUserId(userId);
+        const user = await UserController.get_user_by_id(userId)
+
         const situationBean = new SituationBean();
-        userCharacteristics.forEach(userCharacteristic => {
+
+        user.characteristics.forEach(userCharacteristic => {
             situationBean.characteristics.push(userCharacteristic.id)
         });
-        userAllergens.forEach(userAllergen => {
+        user.allergens.forEach(userAllergen => {
             situationBean.allergens.push(userAllergen.id)
         });
-        // todo check with real data
 
-        if(userId && userCharacteristics && userAllergens){
+        if(userId && user){
             res.status(200).json({
                 ...situationBean
             });
@@ -28,9 +28,25 @@ module.exports = function(app) {
     });
     app.post('/situation/:token', bodyParser.json(), async (req, res) => {
         const userId = await UserController.get_user_id_by_token(req.params.token)
-        // todo update data
-
-        if(userId){
+        const userToUpdate = await UserController.get_user_by_id(userId)
+        const response = req.body
+        userToUpdate.characteristics = [];
+        response.characteristics.forEach(characteristic => {
+            CharacteristicController.getCharacteristicById(characteristic.id).then(newCharacteristic => {
+                if(newCharacteristic !== -1 && characteristic.selected){
+                    userToUpdate.characteristics.push(newCharacteristic)
+                }
+            })
+        })
+        userToUpdate.allergens = [];
+        response.allergens.forEach(allergen => {
+           AllergenController.getAllergenById(allergen.id).then(newAllergen => {
+               if(newAllergen !== -1 && allergen.selected){
+                   userToUpdate.allergens.push(newAllergen)
+               }
+           });
+        })
+        if(await UserController.update_user(userToUpdate, userId)){
             res.status(200);
         } else {
             res.status(500).end();

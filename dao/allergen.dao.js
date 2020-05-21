@@ -8,7 +8,7 @@ class AllergenDao {
      * @param restaurant
      * @returns {Promise<*>}
      */
-    static async saveAllergen(allergen){
+    static async saveAllergen(allergen) {
         const allerg1 = new Allergen(allergen);
         const ret = await allerg1.save();
 
@@ -19,7 +19,7 @@ class AllergenDao {
      * Get all allergens
      * @returns {Promise<*>}
      */
-    static async getAll(){
+    static async getAll() {
         const allAllergens = await Allergen.find()
             // .populate('restaurants', '-__v -_id -allergens')
             .populate({
@@ -41,8 +41,8 @@ class AllergenDao {
      * @param id
      * @returns {Promise<undefined|*>}
      */
-    static async getById(id){
-        if(mongoose.Types.ObjectId.isValid(id)){
+    static async getById(id) {
+        if (mongoose.Types.ObjectId.isValid(id)) {
             const allerg = await Allergen.findOne({_id: id})
                 .populate({
                     path: 'restaurants',
@@ -55,10 +55,10 @@ class AllergenDao {
                     }
                 });
             return allerg;
-        }
-        else {
+        } else {
             return undefined;
-        };
+        }
+        ;
     }
 
     /**
@@ -66,7 +66,7 @@ class AllergenDao {
      * @param name
      * @returns {Promise<undefined|*>}
      */
-    static async getByName(name){
+    static async getByName(name) {
         const allerg = await Allergen.findOne({name: name})
             .populate({
                 path: 'restaurants',
@@ -79,7 +79,7 @@ class AllergenDao {
                 }
             });
 
-        if(allerg) {
+        if (allerg) {
             return allerg;
         } else {
             return undefined;
@@ -92,8 +92,8 @@ class AllergenDao {
      * @param idRestaurant
      * @returns {Promise<void>}
      */
-    static async pushRestaurantInAllergen(idAllerg, idRestaurant){
-        if(mongoose.Types.ObjectId.isValid(idAllerg) && mongoose.Types.ObjectId.isValid(idRestaurant)){
+    static async pushRestaurantInAllergen(idAllerg, idRestaurant) {
+        if (mongoose.Types.ObjectId.isValid(idAllerg) && mongoose.Types.ObjectId.isValid(idRestaurant)) {
             const allerg = await this.getById(idAllerg);
             allerg.restaurants.push(idRestaurant);
             const ret = await allerg.save();
@@ -109,8 +109,8 @@ class AllergenDao {
      * @param idRestaurant
      * @returns {Promise<undefined|*>}
      */
-    static async popRestaurantInAllergen(idAllergen, idRestaurant){
-        if(mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idRestaurant)){
+    static async popRestaurantInAllergen(idAllergen, idRestaurant) {
+        if (mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idRestaurant)) {
             const allerg = await this.getById(idAllergen);
             allerg.restaurants.remove(idRestaurant);
             let ret = await allerg.save();
@@ -121,17 +121,16 @@ class AllergenDao {
     }
 
     /**
-     * Push a restaurant into an allergen
+     * Push a user into an allergen
      * @param idAllergen
      * @param idUser
      * @returns {Promise<void>}
      */
-    static async pushUserInAllergen(idAllergen, idUser){
-        if(mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idUser)){
+    static async pushUserInAllergen(idAllergen, idUser) {
+        if (mongoose.Types.ObjectId.isValid(idAllergen) && mongoose.Types.ObjectId.isValid(idUser)) {
             const allerg = await this.getById(idAllergen);
             allerg.users.push(idUser);
-            const ret = await allerg.save();
-            return ret;
+            return await allerg.save();
         } else {
             return undefined;
         }
@@ -143,8 +142,8 @@ class AllergenDao {
      * @param idUser
      * @returns {Promise<undefined|*>}
      */
-    static async popUserInType(idType, idUser){
-        if(mongoose.Types.ObjectId.isValid(idType) && mongoose.Types.ObjectId.isValid(idUser)){
+    static async popUserInType(idType, idUser) {
+        if (mongoose.Types.ObjectId.isValid(idType) && mongoose.Types.ObjectId.isValid(idUser)) {
             const allerg = await this.getById(idType);
             allerg.users.remove(idUser);
             let ret = await allerg.save();
@@ -160,9 +159,9 @@ class AllergenDao {
      * @param updates
      * @returns {Promise<undefined|*>}
      */
-    static async modifyById(id, updates){
-        if(mongoose.Types.ObjectId.isValid(id)){
-            return Allergen.findOneAndUpdate({_id: id}, updates,{
+    static async modifyById(id, updates) {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            return Allergen.findOneAndUpdate({_id: id}, updates, {
                 new: true //To return model after update
             })
                 .populate({
@@ -185,38 +184,14 @@ class AllergenDao {
      * @param id
      * @returns {Promise<boolean>}
      */
-    static async deleteById(id){
+    static async deleteById(id) {
         let ret = false;
 
         await Allergen.deleteOne({_id: id}, (err) => {
-            if (err) ret =  false;
+            if (err) ret = false;
             ret = true;
         });
         return ret;
-    }
-
-    /**
-     * Get allergen by userId
-     * @returns {Promise<undefined|*>}
-     * @param userId
-     */
-    static async getByUserId(userId){
-        const allergen = await Allergen.find({user: userId}).populate({
-            path: 'allergen',
-            model: 'Allergen',
-            select: 'id name',
-            populate: {
-                path: 'user',
-                model: 'User',
-                select: 'id name'
-            }
-        });
-
-        if(allergen) {
-            return allergen;
-        } else {
-            return undefined;
-        }
     }
 }
 

@@ -59,7 +59,6 @@ class AllergenController {
      * @returns {Promise<number|*>}
      */
     static async modifyById(id, req){
-        console.log(req.body.name);
         const isExist = await AllergenDAO.getByName(req.body.name);
 
 
@@ -110,16 +109,6 @@ class AllergenController {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Get allergen by user id
-     * @param id
-     * @returns {Promise<undefined|*>}
-     */
-    static async getByUserId(id){
-        return await AllergenDAO.getByUserId(id);
-
     }
 }
 

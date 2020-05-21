@@ -49,7 +49,6 @@ class CharacteristicController {
         } else {
             return -1;
         }
-        return undefined;
     }
 
     /**
@@ -59,7 +58,6 @@ class CharacteristicController {
      * @returns {Promise<number|*>}
      */
     static async modifyById(id, req){
-        console.log(req.body.name);
         const isExist = await CharacteristicDAO.getByName(req.body.name);
 
         if (isExist) {
@@ -89,8 +87,7 @@ class CharacteristicController {
         const charac = await CharacteristicDAO.getById(id);
 
         if(charac) {
-            const isDeleted = await CharacteristicDAO.deleteById(id);
-            return isDeleted
+            return await CharacteristicDAO.deleteById(id);
         } else {
             return -1; //404 not found
         }
@@ -103,24 +100,11 @@ class CharacteristicController {
      */
     static async buildCharacteristic(req){
         if (req.body.name) {
-            const charac = { name: req.body.name };
-            return charac;
+            return { name: req.body.name };
         } else {
             return false;
         }
     }
-
-
-    /**
-     * Get characteristics by user id
-     * @param id
-     * @returns {Promise<undefined|*>}
-     */
-    static async getByUserId(id){
-        return await CharacteristicDAO.getByUserId(id);
-
-    }
-
 }
 
 module.exports = CharacteristicController;

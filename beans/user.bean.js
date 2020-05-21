@@ -7,6 +7,8 @@ class UserBean{
     email;
     postalCode;
     cgu;
+    allergens;
+    characteristics;
 
     constructor(lastName,firstName,address,phone,town,email,postalCode,cgu) {
         this.lastName = lastName;
