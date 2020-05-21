@@ -46,6 +46,7 @@ module.exports = function(app) {
                }
            });
         })
+        userToUpdate.hasCompletedSituation = true;
         const update = await UserController.update_user(userToUpdate, userId)
         if(update){
             res.status(200).end();

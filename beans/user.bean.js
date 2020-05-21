@@ -9,8 +9,9 @@ class UserBean{
     cgu;
     allergens;
     characteristics;
+    hasCompletedSituation;
 
-    constructor(lastName,firstName,address,phone,town,email,postalCode,cgu) {
+    constructor(lastName, firstName, address, phone, town, email, postalCode, cgu, hasCompletedSituation) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.address = address;
@@ -19,6 +20,7 @@ class UserBean{
         this.email = email;
         this.postalCode = postalCode;
         this.cgu = cgu;
+        this.hasCompletedSituation = hasCompletedSituation;
     }
 }
 module.exports = UserBean;
