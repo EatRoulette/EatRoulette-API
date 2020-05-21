@@ -202,13 +202,13 @@ class AllergenDao {
      */
     static async getByUserId(userId){
         const allergen = await Allergen.find({user: userId}).populate({
-            path: 'restaurants',
-            model: 'Restaurant',
-            select: 'id name types address city postalCode dep',
+            path: 'allergen',
+            model: 'Allergen',
+            select: 'id name',
             populate: {
-                path: 'types',
-                model: 'TypeRestaurant',
-                select: 'name'
+                path: 'user',
+                model: 'User',
+                select: 'id name'
             }
         });
 
