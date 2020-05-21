@@ -162,11 +162,9 @@ class UserController extends CoreController{
     static async get_user(req,res){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
-        const user = this.get_user_by_id(userId);
+        const user = await UserController.get_user_by_id(userId);
         if(user){
-            res.status(200).json({
-                user: user
-            });
+            res.status(200).json(user);
         } else {
             res.status(500).end();
         }
@@ -174,6 +172,7 @@ class UserController extends CoreController{
 
     static async get_user_by_id(userId){
         const userDao = await UserDao.findById(userId);
+        console.log(userDao)
         const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation);
         user.allergens = [];
         user.characteristics = [];

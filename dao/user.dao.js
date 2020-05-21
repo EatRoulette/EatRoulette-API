@@ -14,6 +14,9 @@ class UserDao {
         if(newUser){
             newUser.characteristics = user.characteristics;
             newUser.allergens = user.allergens;
+            if(user.hasCompletedSituation){
+                newUser.hasCompletedSituation = user.hasCompletedSituation;
+            }
             await newUser.save();
             return newUser;
         }
