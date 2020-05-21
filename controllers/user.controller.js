@@ -172,12 +172,15 @@ class UserController extends CoreController{
 
     static async get_user_by_id(userId){
         const userDao = await UserDao.findById(userId);
-        const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation);
-        user.allergens = [];
-        user.characteristics = [];
-        userDao.allergens.forEach(allergen => user.allergens.push(new AllergenBean(allergen.id, allergen.name)))
-        userDao.characteristics.forEach(characteristic => user.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
-        return user;
+        if(userDao){
+            const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation);
+            user.allergens = [];
+            user.characteristics = [];
+            userDao.allergens.forEach(allergen => user.allergens.push(new AllergenBean(allergen.id, allergen.name)))
+            userDao.characteristics.forEach(characteristic => user.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
+            return user;
+        }
+        return null;
     }
 
     static async update_user(userUpdate, userId){

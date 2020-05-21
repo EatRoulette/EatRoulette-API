@@ -31,27 +31,33 @@ module.exports = function(app) {
         const userId = await UserController.get_user_id_by_token(req.params.token)
         const userToUpdate = await UserController.get_user_by_id(userId)
         const response = req.body
-        userToUpdate.characteristics = [];
-        response.characteristics.forEach(characteristic => {
-            CharacteristicController.getCharacteristicById(characteristic.id).then(newCharacteristic => {
-                if(newCharacteristic !== -1 && characteristic.selected){
-                    userToUpdate.characteristics.push(newCharacteristic)
-                }
+        if(userToUpdate){
+            userToUpdate.characteristics = [];
+            response.characteristics.forEach(characteristic => {
+                CharacteristicController.getCharacteristicById(characteristic.id).then(newCharacteristic => {
+                    if(newCharacteristic !== -1 && characteristic.selected){
+                        userToUpdate.characteristics.push(newCharacteristic)
+                    }
+                })
             })
-        })
-        userToUpdate.allergens = [];
-        response.allergens.forEach(allergen => {
-           AllergenController.getAllergenById(allergen.id).then(newAllergen => {
-               if(newAllergen !== -1 && allergen.selected){
-                   userToUpdate.allergens.push(newAllergen)
-               }
-           });
-        })
-        userToUpdate.hasCompletedSituation = true;
-        const update = await UserController.update_user(userToUpdate, userId)
-        if(update){
-            res.status(200).json({message : 'the user has been updated'});
-        } else {
+            userToUpdate.allergens = [];
+            response.allergens.forEach(allergen => {
+                AllergenController.getAllergenById(allergen.id).then(newAllergen => {
+                    if(newAllergen !== -1 && allergen.selected){
+                        userToUpdate.allergens.push(newAllergen)
+                    }
+                });
+            })
+            userToUpdate.hasCompletedSituation = true;
+            const update = await UserController.update_user(userToUpdate, userId)
+            if(update){
+                res.status(200).json({message : 'the user has been updated'});
+            } else {
+                res.status(500).end();
+            }
+        }
+
+        if(userToUpdate){
             res.status(500).end();
         }
     });

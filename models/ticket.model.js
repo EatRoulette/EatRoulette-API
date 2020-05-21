@@ -14,14 +14,14 @@ const TicketSchema = new Schema({
     message: { type: String, default: '' },
     status: {
         type: String,
-        default: 'todo',
-        enum: ['todo', 'pending', 'done', 'standby'],
+        default: 'created',
+        enum: ['created', 'pending', 'done', 'standby'],
     },
-    emergency: { type: Number, default: 0 },
+    emergency: { type: Number, default: 0 }, // relevant for Java back office
     users: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: [],
-    },
+    }, // user in charge of the ticket =>  relevant for Java back office
     comments: { type: [CommentSchema], default: [] },
     created_at: { type: Date, default: Date.now },
 });
