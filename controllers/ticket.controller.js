@@ -71,6 +71,7 @@ class TicketController extends CoreController {
                 title: data.object,
                 status:'created',
                 author: userId,
+                type: data.type
             }
             await TicketController.create(newTicket)
             res.status(200).json({
