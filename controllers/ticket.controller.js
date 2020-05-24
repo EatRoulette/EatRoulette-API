@@ -1,6 +1,8 @@
 const TicketModel = require('../models').Ticket;
 const CoreController = require('./core.controller');
 const SessionDao = require('../dao').SessionDAO;
+const TicketDao = require('../dao').TicketDAO;
+const TicketBean = require('../beans').TicketBean;
 
 class TicketController extends CoreController {
     /**
@@ -55,7 +57,7 @@ class TicketController extends CoreController {
     }
 
     /**
-     * create a ticket with status todo
+     * create a support request ticket
      * @param req
      * @param res
      * @param next
@@ -77,6 +79,58 @@ class TicketController extends CoreController {
             res.status(200).json({
                 message: `The ticket has been created`
             })
+        }else{
+            res.status(500).json({
+                message: `An error occurred`
+            })
+        }
+    }
+
+    /**
+     * create a ticket with status todo
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async get_tickets_for_user(req, res, next){
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId){
+            const tickets = await TicketDao.getByUserId(userId)
+
+            const ticketBeans = [];
+
+            tickets.forEach(ticket => {
+                let status = "";
+                let type = "";
+                switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
+                    case 'created' :
+                        status = "Créé";
+                        break;
+                    case 'pending' :
+                        status = "En cours de traitement";
+                        break;
+                    case 'done' :
+                        status = "Traité";
+                        break;
+                    case 'standby' :
+                        status = "En attente";
+                        break;
+                }
+                switch (ticket.type){ // 'bug' | 'request'
+                    case 'bug' :
+                        type = "Bogue";
+                        break;
+                    case 'request' :
+                        type = "Demande";
+                        break;
+                        // aura t on d'autre types dans le futur?
+                }
+                ticketBeans.push(new TicketBean(ticket.id, ticket.title,ticket.message, status, type, tickets.comments, ticket.created_at))
+            })
+
+            res.status(200).json(ticketBeans)
         }else{
             res.status(500).json({
                 message: `An error occurred`
