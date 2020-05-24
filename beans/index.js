@@ -4,4 +4,5 @@ module.exports = {
     AllergenBean: require('./allergen.bean'),
     CharacteristicnBean: require('./characteristic.bean'),
     TicketBean: require('./ticket.bean'),
+    CommentBean: require('./comment.bean'),
 };

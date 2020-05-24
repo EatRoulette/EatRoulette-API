@@ -3,6 +3,7 @@ const CoreController = require('./core.controller');
 const SessionDao = require('../dao').SessionDAO;
 const TicketDao = require('../dao').TicketDAO;
 const TicketBean = require('../beans').TicketBean;
+const CommentBean = require('../beans').CommentBean;
 
 class TicketController extends CoreController {
     /**
@@ -86,8 +87,41 @@ class TicketController extends CoreController {
         }
     }
 
+    static manageTicket(ticket){
+        let status = "";
+        let type = "";
+        switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
+            case 'created' :
+                status = "Créé";
+                break;
+            case 'pending' :
+                status = "En cours de traitement";
+                break;
+            case 'done' :
+                status = "Traité";
+                break;
+            case 'standby' :
+                status = "En attente";
+                break;
+        }
+        switch (ticket.type){ // 'bug' | 'request'
+            case 'bug' :
+                type = "Bogue";
+                break;
+            case 'request' :
+                type = "Demande";
+                break;
+            // aura t on d'autre types dans le futur?
+        }
+        const comments = []
+        ticket.comments.forEach(comment => {
+            comments.push(new CommentBean(comment.message, comment.author === userId))
+        })
+        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, ticket.created_at);
+    }
+
     /**
-     * create a ticket with status todo
+     * get tickets for user
      * @param req
      * @param res
      * @param next
@@ -98,42 +132,44 @@ class TicketController extends CoreController {
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const tickets = await TicketDao.getByUserId(userId)
-
             const ticketBeans = [];
-
             tickets.forEach(ticket => {
-                let status = "";
-                let type = "";
-                switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
-                    case 'created' :
-                        status = "Créé";
-                        break;
-                    case 'pending' :
-                        status = "En cours de traitement";
-                        break;
-                    case 'done' :
-                        status = "Traité";
-                        break;
-                    case 'standby' :
-                        status = "En attente";
-                        break;
-                }
-                switch (ticket.type){ // 'bug' | 'request'
-                    case 'bug' :
-                        type = "Bogue";
-                        break;
-                    case 'request' :
-                        type = "Demande";
-                        break;
-                        // aura t on d'autre types dans le futur?
-                }
-                ticketBeans.push(new TicketBean(ticket.id, ticket.title,ticket.message, status, type, tickets.comments, ticket.created_at))
+                ticketBeans.push(TicketController.manageTicket(ticket))
             })
-
             res.status(200).json(ticketBeans)
         }else{
             res.status(500).json({
-                message: `An error occurred`
+                message: `Une erreur est survenue`
+            })
+        }
+    }
+
+    /**
+     * get ticket for user
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async get_ticket_for_user(req, res, next){
+        const token = req.params.token;
+        const idTicket = req.params.id;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId){
+            const ticket = await TicketDao.getById(idTicket)
+            if(JSON.stringify(ticket.author) === JSON.stringify(userId)){ // or else will return false (?)
+                const ticketBean = TicketController.manageTicket(ticket)
+                console.log(JSON.stringify(ticketBean))
+                res.status(200).json(ticketBean)
+            }else{
+                console.log("bad author")
+                res.status(500).json({
+                    message: `Le ticket n'appartient pas à l'utilisateur`
+                })
+            }
+        }else{
+            res.status(500).json({
+                message: `Une erreur est survenue`
             })
         }
     }

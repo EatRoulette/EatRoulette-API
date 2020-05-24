@@ -20,6 +20,23 @@ class TicketDao {
                 }
             });
     }
+    /**
+     * Get one ticket
+     * @returns {Promise<*>}
+     */
+    static async getById(id) {
+        return await Ticket.findOne({_id: id})
+            .populate({
+                path: 'ticket',
+                model: 'Ticket',
+                select: 'id title message status type comments',
+                populate: {
+                    path: 'comments',
+                    model: 'Comment',
+                    select: 'message author'
+                }
+            });
+    }
 
 }
 
