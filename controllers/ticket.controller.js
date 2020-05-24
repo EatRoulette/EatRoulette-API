@@ -1,5 +1,6 @@
 const TicketModel = require('../models').Ticket;
-let CoreController = require('./core.controller');
+const CoreController = require('./core.controller');
+const SessionDao = require('../dao').SessionDAO;
 
 class TicketController extends CoreController {
     /**
@@ -51,6 +52,35 @@ class TicketController extends CoreController {
             .then(ticket => TicketController.render(ticket))
             .then(ticket => res.status(200).json(ticket))
             .catch(next);
+    }
+
+    /**
+     * create a ticket with status todo
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async support_request(req, res, next){
+        const data = req.body;
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId && data){
+            const newTicket = {
+                message : data.description,
+                title: data.object,
+                status:'created',
+                author: userId,
+            }
+            await TicketController.create(newTicket)
+            res.status(200).json({
+                message: `The ticket has been created`
+            })
+        }else{
+            res.status(500).json({
+                message: `An error occurred`
+            })
+        }
     }
 
     /**
@@ -127,13 +157,6 @@ class TicketController extends CoreController {
         }
         return super.update(id, data, options)
     }
-
-
-
-
-
-
-
 }
 
 TicketController.prototype.modelName = 'Ticket';
