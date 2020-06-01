@@ -87,7 +87,7 @@ class TicketController extends CoreController {
         }
     }
 
-    static manageTicket(ticket){
+    static manageTicket(ticket, userId){
         let status = "";
         let type = "";
         switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
@@ -115,7 +115,7 @@ class TicketController extends CoreController {
         }
         const comments = []
         ticket.comments.forEach(comment => {
-            comments.push(new CommentBean(comment.message, comment.author === userId))
+            comments.push(new CommentBean(comment.message, JSON.stringify(comment.author) === JSON.stringify(userId)))
         })
         return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, ticket.created_at);
     }
@@ -134,7 +134,7 @@ class TicketController extends CoreController {
             const tickets = await TicketDao.getByUserId(userId)
             const ticketBeans = [];
             tickets.forEach(ticket => {
-                ticketBeans.push(TicketController.manageTicket(ticket))
+                ticketBeans.push(TicketController.manageTicket(ticket, userId))
             })
             res.status(200).json(ticketBeans)
         }else{
@@ -158,11 +158,9 @@ class TicketController extends CoreController {
         if(userId){
             const ticket = await TicketDao.getById(idTicket)
             if(JSON.stringify(ticket.author) === JSON.stringify(userId)){ // or else will return false (?)
-                const ticketBean = TicketController.manageTicket(ticket)
-                console.log(JSON.stringify(ticketBean))
+                const ticketBean = TicketController.manageTicket(ticket, userId)
                 res.status(200).json(ticketBean)
             }else{
-                console.log("bad author")
                 res.status(500).json({
                     message: `Le ticket n'appartient pas à l'utilisateur`
                 })
@@ -217,6 +215,38 @@ class TicketController extends CoreController {
         .then(ticket => TicketController.render(ticket))
         .then(ticket => res.json(ticket))
         .catch(next);
+    }
+
+    /**
+     * Add comment to ticket by post request
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async add_comment_to_ticket_from_front(req, res, next){
+    const token = req.params.token;
+    const { message, idTicket } = req.body;
+    const userId = await SessionDao.getUserIDByToken(token);
+
+    if(!message || message === ""){
+        res.status(500).json({
+            message: `Le commentaire est vide`
+        })
+    }
+
+    if(userId){
+        const ticket = await TicketDao.getById(idTicket)
+        const comment = { author:userId, message }
+        ticket.comments.push(comment);
+        await ticket.save();
+        const ticketBean = TicketController.manageTicket(ticket, userId);
+        res.status(200).json(ticketBean);
+    }else{
+        res.status(500).json({
+            message: `Une erreur est survenue`
+        })
+    }
     }
 
     static async get_ticket_from_id(req, res, next){
