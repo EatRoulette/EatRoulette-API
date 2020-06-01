@@ -5,4 +5,5 @@ module.exports = {
     CharacteristicnBean: require('./characteristic.bean'),
     TicketBean: require('./ticket.bean'),
     CommentBean: require('./comment.bean'),
+    RestaurantBean: require('./restaurant.bean'),
 };

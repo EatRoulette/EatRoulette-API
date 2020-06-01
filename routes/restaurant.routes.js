@@ -101,6 +101,42 @@ module.exports = function(app) {
     });
 
     /**
+     * Search restaurant
+     */
+    app.post('/restaurant/search', bodyParser.json(), async (req, res) => {
+        const { name, postalCode, city} = req.body
+        let ret = "";
+
+        if(name && !postalCode && !city){
+            ret = await RestaurantController.searchRestaurantsByName(name);
+        }
+        else if(!name && postalCode && !city){
+            ret = await RestaurantController.searchRestaurantsByPostalCode(postalCode);
+        }
+        else if(!name && !postalCode && city){
+            ret = await RestaurantController.searchRestaurantsByCity(city);
+        }
+        else if(!name && postalCode && city){
+            ret = await RestaurantController.searchRestaurantsByCityAndPostalCode(city, postalCode);
+        }
+        else if(name && postalCode && !city){
+            ret = await RestaurantController.searchRestaurantsByNameAndPostalCode(name, postalCode);
+        }
+        else if(name && !postalCode && city){
+            ret = await RestaurantController.searchRestaurantsByNameAndCity(name, city);
+        }
+        else if(name && postalCode && city){
+            ret = await RestaurantController.searchRestaurantsByNameAndCityAndPostalCode(name, city, postalCode);
+        }
+
+        if(ret){
+            res.status(200).json(ret);
+        }else{
+            res.status(500).end();
+        }
+    });
+
+    /**
      * Allergen and characteristic management
      */
 

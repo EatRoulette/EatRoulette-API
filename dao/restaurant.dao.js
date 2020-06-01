@@ -35,6 +35,32 @@ class RestaurantDao {
         };
     }
 
+
+    /**
+     * search restaurant
+     */
+    static async searchByName(name){
+        return await Restaurant.find({name: name}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByCity(city){
+        return await Restaurant.find({city: city}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByPostalCode(postalCode){
+        return await Restaurant.find({postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByCityAndPostalCode(city, postalCode){
+        return await Restaurant.find({city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndPostalCode(name, postalCode){
+        return await Restaurant.find({name: name, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndCity(name, city){
+        return await Restaurant.find({name: name, city: city}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndCityAndPostalCode(name, city, postalCode){
+        return await Restaurant.find({name: name, city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+
     /**
      * Push a type into a restaurant
      * @param idType
