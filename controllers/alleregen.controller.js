@@ -1,51 +1,51 @@
-const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
+const AllergenDAO = require('../dao').AllergenDAO;
 
-class TypeRestaurantController {
+class AllergenController {
 
     /**
-     * Save the restaurant type
+     * Save the allergen
      * @param req
      * @returns {Promise<void>}
      */
-    static async saveType(req){
-        const isExist = await TypeRestaurantDAO.getByName(req.body.name);
+    static async saveAllergen(req){
+        const isExist = await AllergenDAO.getByName(req.body.name);
 
         if (isExist) {
             return -2; //conflict
         }
-        let type = await this.buildType(req);
+        let allerg = await this.buildAllergen(req);
 
-        if(type){
-            type = await TypeRestaurantDAO.saveTypeRestaurant(type);
-            return type;
+        if(allerg){
+            allerg = await AllergenDAO.saveAllergen(allerg);
+            return allerg;
         } else {
             return -1; //Bad request
         }
     }
 
     /**
-     * Get all restaurants
+     * Get all allergens
      * @returns {Promise<undefined|*>}
      */
-    static async getTypes(){
-        const allTypes = await TypeRestaurantDAO.getAll();
+    static async getAllergens(){
+        const allAllergens = await AllergenDAO.getAll();
 
-        if(allTypes){
-            return allTypes;
+        if(allAllergens){
+            return allAllergens;
         }
         return undefined;
     }
 
     /**
-     * Get type by id
+     * Get allergen by id
      * @param id
      * @returns {Promise<undefined>}
      */
-    static async getTypeById(id){
-        const type = await TypeRestaurantDAO.getById(id);
+    static async getAllergenById(id){
+        const allerg = await AllergenDAO.getById(id);
 
-        if(type){
-            return type;
+        if(allerg){
+            return allerg;
         } else {
             return -1;
         }
@@ -53,22 +53,23 @@ class TypeRestaurantController {
     }
 
     /**
-     *
+     * Modify by id
      * @param id
      * @param req
      * @returns {Promise<number|*>}
      */
     static async modifyById(id, req){
-        const isExist = await TypeRestaurantDAO.getByName(req.body.name);
+        const isExist = await AllergenDAO.getByName(req.body.name);
+
 
         if (isExist) {
             return -3; //conflict
         }
 
-        let modifiedType = await this.buildType(req);
+        let modifiedType = await this.buildAllergen(req);
 
         if(modifiedType){
-            modifiedType = await TypeRestaurantDAO.modifyById(id, modifiedType);
+            modifiedType = await AllergenDAO.modifyById(id, modifiedType);
             if(modifiedType){
                 return modifiedType;
             } else {
@@ -81,15 +82,15 @@ class TypeRestaurantController {
     }
 
     /**
-     * Delete restaurant if exist
+     * Delete allergen if exist
      * @param id
      * @returns {Promise<number|*>}
      */
     static async deleteById(id){
-        const restaurant = await TypeRestaurantDAO.getById(id);
+        const allerg = await AllergenDAO.getById(id);
 
-        if(restaurant) {
-            const isDeleted = await TypeRestaurantDAO.deleteById(id);
+        if(allerg) {
+            const isDeleted = await AllergenDAO.deleteById(id);
             return isDeleted
         } else {
             return -1; //404 not found
@@ -97,11 +98,11 @@ class TypeRestaurantController {
     }
 
     /**
-     * Build the restaurant type
+     * Build the allergen
      * @param req
      * @returns {Promise<{name: *}|boolean>}
      */
-    static async buildType(req){
+    static async buildAllergen(req){
         if (req.body.name) {
             const type = { name: req.body.name };
             return type;
@@ -109,7 +110,6 @@ class TypeRestaurantController {
             return false;
         }
     }
-
 }
 
-module.exports = TypeRestaurantController;
+module.exports = AllergenController;

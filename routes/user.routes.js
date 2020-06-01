@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const FriendsListUserController = require('../controllers').FriendsListUserController;
+const UserController = require('../controllers').UserController;
 
 
 module.exports = function(app) {
@@ -18,7 +19,10 @@ module.exports = function(app) {
 
     app.delete('/manage/friendsListUser/products/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser);
 
-    app.get('/friendsLists', FriendsListUserController.friendsListUsers_get_all);
-    app.get('/friendsList/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
+    app.get('/friendsListUsers', FriendsListUserController.friendsListUsers_get_all);
+    app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
+    app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
+
+    app.get('/user/:token', UserController.get_user);
 
 };

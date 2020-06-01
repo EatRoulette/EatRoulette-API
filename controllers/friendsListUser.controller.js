@@ -64,27 +64,30 @@ class FriendsListUserController extends CoreController {
 
     static async get_friendsListUser_by_id(req,res,next) {
         const id = req.params.friendsListUserId;
-        FriendsListUserController.friendsListUserNotExist(req,res,next,id);
-        FriendsListUserModel
-            .findById(id).populate("users")
-            .select('name users _id')
-            .exec()
-            .then(doc => {
-                if(doc){
-                    res.status(200).json({
-                        friendsListUser: doc,
-                        request: {
-                            type: 'GET',
-                            url: `http://localhost:3000/friendsListUsers`,
+        Promise.resolve()
+            .then(() => FriendsListUserController.friendsListUserNotExist(req,res,next,id))
+            .then(() => {
+                FriendsListUserModel
+                    .findById(id).populate("users")
+                    .select('name users _id')
+                    .exec()
+                    .then(doc => {
+                        if(doc){
+                            res.status(200).json({
+                                friendsListUser: doc,
+                                request: {
+                                    type: 'GET',
+                                    url: `http://localhost:3000/friendsListUsers`,
+                                }
+                            });
                         }
+                    }).catch(err => {
+                    res.status(400).json({
+                        message: "Bad request",
+                        err,
                     });
-                }
-            }).catch(err => {
-            res.status(400).json({
-                message: "Bad request",
-                err,
+                });
             });
-        });
     };
 
     static async modif_friendsListUser(req, res, next){
@@ -141,7 +144,7 @@ class FriendsListUserController extends CoreController {
             data.users.forEach((elem, i) => {
                 promiseAll.push(UserController.userNotExist(req,res,next,elem._id));
             });
-            promiseAll.push( FriendsListUserController.friendsListUserNotExist(req,res,next,id));
+            promiseAll.push(FriendsListUserController.friendsListUserNotExist(req,res,next,id));
 
             return Promise.all(promiseAll);
         })
@@ -189,7 +192,7 @@ class FriendsListUserController extends CoreController {
             return Promise.all(promiseAll);
         })
             .then(() => {
-                console.log(data.users);
+                data.users = FriendsListUserController.eliminateDuplicates(data.users);
                 return FriendsListUserModel.updateOne({"_id":id},{$push:{users:{$each:data.users}}})
             })
             .then(() => FriendsListUserController.render(FriendsListUserDao.findById(id)))
@@ -201,6 +204,18 @@ class FriendsListUserController extends CoreController {
                 }
             }))
             .catch(next);
+    }
+
+    static eliminateDuplicates(arr) {
+        let i, len=arr.length, out=[], obj={};
+
+        for (i=0;i<len;i++) {
+            obj[arr[i]]=0;
+        }
+        for (i in obj) {
+            out.push(i);
+        }
+        return out;
     }
 
     static async friendsListUserNotExist(req,res,next,id){

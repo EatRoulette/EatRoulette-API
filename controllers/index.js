@@ -4,5 +4,7 @@ module.exports = {
     RestaurantController: require('./restaurant.controller'),
     FriendsListUserController: require('./friendsListUser.controller'),
     TypeRestaurantController: require('./type-restaurant.controller'),
-    TicketController: require('./ticket.controller')
+    TicketController: require('./ticket.controller'),
+    AllergenController: require('./alleregen.controller'),
+    CharacteristicController: require('./characteristic.controller')
 };

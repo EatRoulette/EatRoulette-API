@@ -8,7 +8,7 @@ module.exports = function(app) {
 
     app.post('/auth/login', bodyParser.json(), UserController.login);
 
-    app.delete('/auth/logout/:sessionId',  UserController.logout);
+    app.delete('/auth/logout/:token',  UserController.logout);
 
     app.put('/auth/user/:userId', bodyParser.json() , UserController.modif_user);
 

@@ -4,5 +4,7 @@ module.exports = {
     Restaurant: require('./restaurant.model'),
     FriendsListUser: require('./friendsListUser.model'),
     TypeRestaurant: require('./type-restaurant.model'),
+    Allergen: require('./allergen.model'),
+    Characteristic: require('./characteristic.model'),
     Ticket: require('./ticket.model')
 };

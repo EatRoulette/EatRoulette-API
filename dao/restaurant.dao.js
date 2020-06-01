@@ -9,10 +9,8 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async saveRestaurant(restaurant){
-        const restaurant1 = new Restaurant(restaurant)
-        const ret = await restaurant1.save();
-
-        return ret;
+        const newRestaurant = new Restaurant(restaurant)
+        return await newRestaurant.save();
     }
 
     /**
@@ -20,9 +18,7 @@ class RestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allRestaurants = await Restaurant.find().populate('types', '-_id -__v -restaurants');
-
-        return allRestaurants;
+        return await Restaurant.find().populate('types allergens characteristics', '-_id -__v -restaurants -users');
     }
 
     /**
@@ -32,12 +28,37 @@ class RestaurantDao {
      */
     static async getById(id){
         if(mongoose.Types.ObjectId.isValid(id)){
-            const restaurant = await Restaurant.findOne({_id: id}).populate('types', '-_id -__v -restaurants');
-            return restaurant;
+            return await Restaurant.findOne({_id: id}).populate('types allergens characteristics', '-_id -__v -restaurants -users');
         }
         else {
             return undefined;
         };
+    }
+
+
+    /**
+     * search restaurant
+     */
+    static async searchByName(name){
+        return await Restaurant.find({name: name}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByCity(city){
+        return await Restaurant.find({city: city}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByPostalCode(postalCode){
+        return await Restaurant.find({postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByCityAndPostalCode(city, postalCode){
+        return await Restaurant.find({city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndPostalCode(name, postalCode){
+        return await Restaurant.find({name: name, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndCity(name, city){
+        return await Restaurant.find({name: name, city: city}).populate('types ', '-__v -restaurants -users');
+    }
+    static async searchByNameAndCityAndPostalCode(name, city, postalCode){
+        return await Restaurant.find({name: name, city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
     }
 
     /**
@@ -50,15 +71,47 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
             const rest = await this.getById(idRestaurant);
             rest.types.push(idType);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
         } else {
             return undefined;
         }
     }
 
     /**
-     *
+     * Push an allergen into a restaurant
+     * @param idAllergen
+     * @param idRestaurant
+     * @returns {Promise<void>}
+     */
+    static async pushAllergenInRestaurant(idAllergen, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idAllergen)){
+            const rest = await this.getById(idRestaurant);
+            rest.allergens.push(idAllergen);
+            return await rest.save();
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Push a characteristic into a restaurant
+     * @param idCharac
+     * @param idRestaurant
+     * @returns {Promise<void>}
+     */
+    static async pushCharacInRestaurant(idCharac, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
+            const rest = await this.getById(idRestaurant);
+            rest.characteristics.push(idCharac);
+            return await rest.save();
+        } else {
+            return undefined;
+        }
+    }
+
+
+    /**
+     * Remove type in restaurant
      * @param idType
      * @param idRestaurant
      * @returns {Promise<undefined|any>}
@@ -67,8 +120,39 @@ class RestaurantDao {
         if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idType)){
             const rest = await this.getById(idRestaurant);
             rest.types.remove(idType);
-            const ret = await rest.save();
-            return ret;
+            return await rest.save();
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Remove allergen in restaurant
+     * @param idAllergen
+     * @param idRestaurant
+     * @returns {Promise<undefined|any>}
+     */
+    static async popAllergenInRestaurant(idAllergen, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idAllergen)){
+            const rest = await this.getById(idRestaurant);
+            rest.allergens.remove(idAllergen);
+            return await rest.save();
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Remove characteristic in restaurant
+     * @param idCharac
+     * @param idRestaurant
+     * @returns {Promise<undefined|any>}
+     */
+    static async popCharacInRestaurant(idCharac, idRestaurant){
+        if(mongoose.Types.ObjectId.isValid(idRestaurant) && mongoose.Types.ObjectId.isValid(idCharac)){
+            const rest = await this.getById(idRestaurant);
+            rest.characteristics.remove(idCharac);
+            return await rest.save();
         } else {
             return undefined;
         }

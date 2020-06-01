@@ -1,3 +1,6 @@
+const UserBean = require('../beans/user.bean');
+const AllergenBean = require('../beans/allergen.bean');
+const CharacteristicBean = require('../beans/characteristic.bean');
 const UserDao = require('../dao').UserDAO;
 const SessionDao = require('../dao').SessionDAO;
 const CoreController = require('./core.controller');
@@ -5,26 +8,60 @@ const SecurityUtil = require('../utils').SecurityUtil;
 const SessionController = require('./session.controller');
 
 class UserController extends CoreController{
+
+    /**
+     * Subscribe function to create User
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async subscribe(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
-        const authorizedFields = ['login','email','password','type'];
-        Promise.resolve().then(() => {
-            return UserDao.findOne({email:data.email});
-        }).then(user => {
-            if(user){
+        const authorizedFields = ['lastName','firstName','town','address','postalCode','phone','email','password','type'];
+
+        if( data.lastName &&
+            data.firstName &&
+            data.town &&
+            data.address &&
+            data.postalCode &&
+            data.phone &&
+            data.email &&
+            data.password &&
+            data.type ){
+
+                Promise.resolve().then(() => {
+                    return UserDao.findOne({email:data.email});
+                }).then(user => {
+                    if(user){
+                        res.status(409).json({
+                            message:"This email already exist"
+                        }).end();
+                        throw new Error("This email already exist");
+                    }
+                    return UserController.create(data, {authorizedFields});
+                })
+                    .then(user => UserController.render(user))
+                    .then(user => res.json(user))
+                    .catch(next);
+        }else{
+            Promise.resolve().then(() => {
                 res.status(409).json({
-                    message:"This email already exist"
+                    message:"One or more fields are empty"
                 }).end();
-                throw new Error("This email already exist");
-            }
-            return UserController.create(data, {authorizedFields});
-        })
-            .then(user => UserController.render(user))
-            .then(user => res.json(user))
-            .catch(next);
+                throw new Error("One or more fields are empty");
+            }).then(() => res.json())
+        }
     };
 
+    /**
+     * Create a token for the user
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async login(req, res, next){
         let data = req.body;
         data.password = SecurityUtil.hashPassword(data.password);
@@ -43,21 +80,38 @@ class UserController extends CoreController{
 
         const token = await SecurityUtil.randomToken();
         const session = await SessionController.create(user,token);
-        return session;
+
+        if(session){
+            res.status(200).json({
+                token: session.token
+            });
+        } else {
+            res.status(500).end();
+        }
     }
 
+    /**
+     * Close the session
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
     static async logout(req, res, next){
 
-        let sessionId = req.params.sessionId;
-        Promise.resolve()
-            .then(() => {
-                SessionDao.deleteById(sessionId);
-                res.status(200).json({
-                    message: `The user has been logout`
-                }).end();
+        const token = req.params.token;
 
+        const ret = await SessionDao.deleteByToken(token);
+
+        if(ret){
+            res.status(200).json({
+                message: `The user has been logout`
             })
-            .catch(next);
+        } else {
+            res.status(404).json({
+                message: `Invalid token or user is not logged`
+            });
+        }
     }
 
     static async delete_user(req,res,next){
@@ -104,6 +158,39 @@ class UserController extends CoreController{
                 return user;
             });
     }
+
+    static async get_user(req,res){
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        const user = await UserController.get_user_by_id(userId);
+        if(user){
+            res.status(200).json(user);
+        } else {
+            res.status(500).end();
+        }
+    }
+
+    static async get_user_by_id(userId){
+        const userDao = await UserDao.findById(userId);
+        if(userDao){
+            const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation);
+            user.allergens = [];
+            user.characteristics = [];
+            userDao.allergens.forEach(allergen => user.allergens.push(new AllergenBean(allergen.id, allergen.name)))
+            userDao.characteristics.forEach(characteristic => user.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
+            return user;
+        }
+        return null;
+    }
+
+    static async update_user(userUpdate, userId){
+        return await UserDao.updateUser(userUpdate, userId);
+    }
+
+    static async get_user_id_by_token(token){
+        return await SessionDao.getUserIDByToken(token);
+    }
+
 }
 UserController.prototype.modelName = 'User';
 module.exports = UserController;
