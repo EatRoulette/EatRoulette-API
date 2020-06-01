@@ -17,6 +17,11 @@ const TicketSchema = new Schema({
         default: 'created',
         enum: ['created', 'pending', 'done', 'standby'],
     },
+    type: {
+        type: String,
+        default: 'request',
+        enum: ['bug', 'request'],
+    },
     emergency: { type: Number, default: 0 }, // relevant for Java back office
     users: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
