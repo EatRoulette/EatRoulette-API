@@ -1,6 +1,8 @@
 const bodyParser = require('body-parser');
 const AllergenController = require('../controllers').AllergenController;
 const CharacteristicController = require('../controllers').CharacteristicController;
+const AllergenBean = require('../beans').AllergenBean;
+const CharacteristicnBean = require('../beans').CharacteristicnBean;
 
 module.exports = function(app) {
 
@@ -30,10 +32,11 @@ module.exports = function(app) {
      */
     app.get('/allergens', async (req, res) => {
         const allergens = await AllergenController.getAllergens()
-
         if(allergens){
             if(allergens.length > 0) {
-                res.status(200).json(allergens);
+                const resultAllergen = []
+                allergens.forEach(allergen => resultAllergen.push(new AllergenBean(allergen._id, allergen.name)))
+                res.status(200).json(resultAllergen);
             } else {
                 res.status(204).end();
             }
@@ -120,7 +123,9 @@ module.exports = function(app) {
 
         if(characteristics){
             if(characteristics.length > 0) {
-                res.status(200).json(characteristics);
+                const resultCharacteristics = []
+                characteristics.forEach(characteristic => resultCharacteristics.push(new CharacteristicnBean(characteristic._id, characteristic.name)))
+                res.status(200).json(resultCharacteristics);
             } else {
                 res.status(204).end();
             }
@@ -177,4 +182,5 @@ module.exports = function(app) {
         }
         res.status(500).end();
     });
+
 };

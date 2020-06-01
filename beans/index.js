@@ -1,3 +1,6 @@
 module.exports = {
     UserBean: require('./user.bean'),
+    SituationBean: require('./situation.bean'),
+    AllergenBean: require('./allergen.bean'),
+    CharacteristicnBean: require('./characteristic.bean'),
 };

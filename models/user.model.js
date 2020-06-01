@@ -12,9 +12,18 @@ const userSchema = new Schema({
     postalCode: String,
     password: String,
     type: String,
+    hasCompletedSituation: Boolean,
     sessions: [{
         type: Schema.Types.ObjectId,
         ref: 'Session'
+    }],
+    allergens: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Allergen'
+    }],
+    characteristics: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Characteristic'
     }]
 });
 

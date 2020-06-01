@@ -46,8 +46,6 @@ class TicketController extends CoreController {
             'status',
             'users'
         ];
-
-        console.log(data);
         Promise.resolve()
             .then(() => TicketController.create(data, { authorizedFields }))
             .then(ticket => TicketController.render(ticket))
