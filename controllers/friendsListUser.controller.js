@@ -192,9 +192,7 @@ class FriendsListUserController extends CoreController {
             return Promise.all(promiseAll);
         })
             .then(() => {
-                console.log(data.users);
                 data.users = FriendsListUserController.eliminateDuplicates(data.users);
-                console.log(data.users);
                 return FriendsListUserModel.updateOne({"_id":id},{$push:{users:{$each:data.users}}})
             })
             .then(() => FriendsListUserController.render(FriendsListUserDao.findById(id)))

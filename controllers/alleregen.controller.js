@@ -59,7 +59,6 @@ class AllergenController {
      * @returns {Promise<number|*>}
      */
     static async modifyById(id, req){
-        console.log(req.body.name);
         const isExist = await AllergenDAO.getByName(req.body.name);
 
 
@@ -111,7 +110,6 @@ class AllergenController {
             return false;
         }
     }
-
 }
 
 module.exports = AllergenController;

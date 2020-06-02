@@ -59,9 +59,7 @@ class TypeRestaurantController {
      * @returns {Promise<number|*>}
      */
     static async modifyById(id, req){
-        console.log(req.body.name);
         const isExist = await TypeRestaurantDAO.getByName(req.body.name);
-
 
         if (isExist) {
             return -3; //conflict
