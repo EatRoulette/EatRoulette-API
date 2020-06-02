@@ -1,6 +1,8 @@
 const RestaurantDAO = require('../dao').RestaurantDAO;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
+const AllergenController = require('./alleregen.controller');
+const CharacteristicController = require('./characteristic.controller');
 const CharacteristicDAO = require('../dao').CharacteristicDAO;
 const RestaurantBean = require('../beans').RestaurantBean;
 const Tools = require('../utils').Util;
@@ -19,6 +21,22 @@ class RestaurantController {
             restaurant = await RestaurantDAO.saveRestaurant(restaurant);
             restaurant = await this.getRestaurantsById(restaurant._id);
             return restaurant;
+        } else {
+            return -1; //Bad request
+        }
+    }
+    /**
+     * add the restaurant
+     * @param req
+     * @returns {Promise<void>}
+     */
+    static async addRestaurant(req){
+        // TODO status
+        const restaurant = await this.buildRestaurantFromBean(req);
+        console.log("TEST")
+        console.log(restaurant)
+        if(restaurant){
+            return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
             return -1; //Bad request
         }
@@ -116,7 +134,6 @@ class RestaurantController {
     }
 
     static manageRestaurant(restaurant){
-        console.log(JSON.stringify(restaurant))
         return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address);
     }
 
@@ -313,6 +330,66 @@ class RestaurantController {
                 _idSituation: req.body._idSituation
             }
             return restaurant;
+
+        } else {
+            return false;
+        }
+    }
+
+    static async getCharacteristics(req ){
+        const characteristics = []
+        for(const characteristic of req.body.characteristics){
+            const newCharacteristic = await RestaurantController.getCharacteristic(characteristic)
+            if(newCharacteristic !== -1){
+                characteristics.push(newCharacteristic)
+            }
+        }
+        return characteristics;
+    }
+
+    static async getCharacteristic(characteristic){
+        return await CharacteristicController.getCharacteristicById(characteristic.id)
+    }
+
+    static async getAllergen(allergen){
+        return await AllergenController.getAllergenById(allergen.id)
+    }
+
+    static async getAllergens(req ){
+        const allergens = []
+        for(const allergen of req.body.allergens){
+            const newAllergen = await RestaurantController.getAllergen(allergen)
+            if(newAllergen !== -1){
+                allergens.push(newAllergen)
+            }
+        }
+        return allergens;
+    }
+
+    static async buildRestaurantFromBean(req){
+        let characteristics = []
+        let allergens = []
+
+        if (req.body.name && req.body.address && req.body.city &&
+            req.body.postalCode ) {
+            if(req.body.allergens){
+                allergens = await RestaurantController.getAllergens(req)
+            }
+            if(req.body.characteristics){
+                characteristics = await RestaurantController.getCharacteristics(req)
+            }
+            console.log("BUILD result characteristics "+ JSON.stringify(characteristics))
+            return {
+                name: req.body.name,
+                website: req.body.website,
+                address: req.body.address,
+                city: req.body.city,
+                postalCode: req.body.postalCode,
+                dep: req.body.dep,
+                characteristics: characteristics,
+                allergens: allergens,
+                // TODO types: for now, table does not exists so front doesn't send it (because he has no type to make the user choose)
+            }
 
         } else {
             return false;

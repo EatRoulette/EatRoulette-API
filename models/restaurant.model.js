@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 const restaurantSchema = new Schema({
     name: String,
-    site: String,
+    website: String,
     address: String,
     city: String,
     postalCode: String,
@@ -21,6 +21,7 @@ const restaurantSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Characteristic'
     }]
+    // TODO status
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
