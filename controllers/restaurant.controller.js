@@ -130,8 +130,11 @@ class RestaurantController {
      * Return a random restaurant
      * @returns {Promise<*>}
      */
-    static async getRandomRestaurant(){
-        const allRestaurants = await RestaurantDAO.getAll();
+    static async getRandomRestaurant(json){
+        const allRestaurants = await RestaurantDAO.getByElement(json);
+
+        console.log("-------------")
+        console.log(allRestaurants);
 
         if(allRestaurants){
             if (allRestaurants.length > 0){

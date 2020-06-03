@@ -22,6 +22,15 @@ class RestaurantDao {
     }
 
     /**
+     * Get by elements
+     * @param json
+     * @returns {Promise<*>}
+     */
+    static async getByElement(json){
+        return await Restaurant.find(json).populate('types allergens characteristics', '-_id -__v -restaurants -users');
+    }
+
+    /**
      * Get the restaurant if exist
      * @param id
      * @returns {Promise<undefined|*>}
