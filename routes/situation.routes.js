@@ -33,21 +33,19 @@ module.exports = function(app) {
         const response = req.body
         if(userToUpdate){
             userToUpdate.characteristics = [];
-            response.characteristics.forEach(characteristic => {
-                CharacteristicController.getCharacteristicById(characteristic.id).then(newCharacteristic => {
-                    if(newCharacteristic !== -1 && characteristic.selected){
-                        userToUpdate.characteristics.push(newCharacteristic)
-                    }
-                })
-            })
+            for(const characteristic of response.characteristics){
+                const newCharacteristic = await CharacteristicController.getCharacteristicById(characteristic.id)
+                if(newCharacteristic !== -1 && characteristic.selected){
+                    userToUpdate.characteristics.push(newCharacteristic)
+                }
+            }
             userToUpdate.allergens = [];
-            response.allergens.forEach(allergen => {
-                AllergenController.getAllergenById(allergen.id).then(newAllergen => {
-                    if(newAllergen !== -1 && allergen.selected){
-                        userToUpdate.allergens.push(newAllergen)
-                    }
-                });
-            })
+            for(const allergen of response.allergens){
+                const newAllergen = await AllergenController.getAllergenById(allergen.id)
+                if(newAllergen !== -1 && allergen.selected){
+                    userToUpdate.allergens.push(newAllergen)
+                }
+            }
             userToUpdate.hasCompletedSituation = true;
             const update = await UserController.update_user(userToUpdate, userId)
             if(update){

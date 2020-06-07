@@ -39,8 +39,8 @@ module.exports = function(app) {
     /**
      * Get random restaurant
      */
-    app.get('/restaurant/rand', async (req, res) => {
-        const randRest = await RestaurantController.getRandomRestaurant();
+    app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+        const randRest = await RestaurantController.getRandomRestaurant(req.body);
 
         if(randRest){
             if(randRest === -1){
