@@ -131,7 +131,7 @@ class RestaurantController {
     }
 
     static manageRestaurant(restaurant){
-        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address);
+        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address, restaurant.city);
     }
 
     static manageRestaurants(restaurants){

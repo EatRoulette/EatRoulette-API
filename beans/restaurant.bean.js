@@ -3,8 +3,9 @@ class RestaurantBean{
     name;
     type;
     address;
+    city;
 
-    constructor(id, name, types, address) {
+    constructor(id, name, types, address, city) {
         this.id = id;
         this.name = name;
         this.type = "";
@@ -13,6 +14,7 @@ class RestaurantBean{
             this.type.slice(0, -2)
         }
         this.address = address;
+        this.city = city;
     }
 }
 module.exports = RestaurantBean;
