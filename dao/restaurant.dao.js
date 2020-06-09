@@ -10,7 +10,6 @@ class RestaurantDao {
      */
     static async saveRestaurant(restaurant){
         const newRestaurant = new Restaurant(restaurant)
-        console.log("NEW RESATAURANT"+ JSON.stringify(newRestaurant))
         return await newRestaurant.save();
     }
 

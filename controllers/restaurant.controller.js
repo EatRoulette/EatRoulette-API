@@ -31,10 +31,7 @@ class RestaurantController {
      * @returns {Promise<void>}
      */
     static async addRestaurant(req){
-        // TODO status
         const restaurant = await this.buildRestaurantFromBean(req);
-        console.log("TEST")
-        console.log(restaurant)
         if(restaurant){
             return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
@@ -139,7 +136,11 @@ class RestaurantController {
 
     static manageRestaurants(restaurants){
         const result = []
-        restaurants.forEach(r => result.push(this.manageRestaurant(r)))
+        restaurants.forEach(r => {
+            if(r.status !== 'pending'){
+                result.push(this.manageRestaurant(r))
+            }
+        })
         return result;
     }
 
@@ -378,7 +379,6 @@ class RestaurantController {
             if(req.body.characteristics){
                 characteristics = await RestaurantController.getCharacteristics(req)
             }
-            console.log("BUILD result characteristics "+ JSON.stringify(characteristics))
             return {
                 name: req.body.name,
                 website: req.body.website,
@@ -388,6 +388,7 @@ class RestaurantController {
                 dep: req.body.dep,
                 characteristics: characteristics,
                 allergens: allergens,
+                status: 'pending',
                 // TODO types: for now, table does not exists so front doesn't send it (because he has no type to make the user choose)
             }
 

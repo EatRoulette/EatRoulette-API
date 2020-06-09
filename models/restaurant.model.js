@@ -20,8 +20,8 @@ const restaurantSchema = new Schema({
     characteristics: [{
         type: Schema.Types.ObjectId,
         ref: 'Characteristic'
-    }]
-    // TODO status
+    }],
+    status: String // pending | validated
 });
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);
