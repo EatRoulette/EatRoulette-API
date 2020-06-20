@@ -99,7 +99,6 @@ class FriendsListUserController extends CoreController {
 
         await FriendsListUserModel.updateOne({"_id":idGroup},{users:FriendsListUserController.eliminateDuplicates(users)})
         const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
-        console.log(groups)
         res.status(200).json(FriendsListUserController.manageFriendsListUsers(groups))
     }
 
