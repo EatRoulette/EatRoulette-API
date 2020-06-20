@@ -1,4 +1,5 @@
 const UserBean = require('../beans/user.bean');
+const ShortUserBean = require('../beans/shortUser.bean');
 const AllergenBean = require('../beans/allergen.bean');
 const CharacteristicBean = require('../beans/characteristic.bean');
 const UserDao = require('../dao').UserDAO;
@@ -168,6 +169,33 @@ class UserController extends CoreController{
         } else {
             res.status(500).end();
         }
+    }
+
+    static async searchUserByFirstName(firstName){
+        const users = await UserDao.searchUserByFirstName(firstName)
+        const results = []
+        for(let user of users){
+            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
+        }
+        return results
+    }
+
+    static async searchUserByLastName(lastName){
+        const users = await UserDao.searchUserByLastName(lastName)
+        const results = []
+        for(let user of users){
+            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
+        }
+        return results
+    }
+
+    static async searchUserByFirstNameAndLastName(firstName, lastName){
+        const users = await UserDao.searchUserByFirstNameAndLastName(firstName, lastName)
+        const results = []
+        for(let user of users){
+            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
+        }
+        return results
     }
 
     static async get_user_by_id(userId){

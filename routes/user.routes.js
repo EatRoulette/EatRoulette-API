@@ -25,5 +25,23 @@ module.exports = function(app) {
     app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
 
     app.get('/user/:token', UserController.get_user);
+    app.post('/user/search', bodyParser.json(), async (req, res) => {
+        // UserController.search_user
+        let ret;
+        const { firstName, lastName} = req.body
+        if(firstName && !lastName){
+            ret = await UserController.searchUserByFirstName(firstName)
+        }else if(!firstName && lastName){
+            ret = await UserController.searchUserByLastName(lastName)
+        }else if(firstName && lastName){
+            ret = await UserController.searchUserByFirstNameAndLastName(firstName, lastName)
+        }
+
+        if(ret){
+            res.status(200).json(ret);
+        }else{
+            res.status(500).end();
+        }
+    });
 
 };

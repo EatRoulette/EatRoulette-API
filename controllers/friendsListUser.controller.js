@@ -83,7 +83,7 @@ class FriendsListUserController extends CoreController {
         for(let group of friendsListUsers){
             const friends = []
             for(let friend of group.users){
-                friends.push(new ShortUserBean(friend.firstName, friend.lastName))
+                friends.push(new ShortUserBean(friend._id, friend.firstName, friend.lastName))
             }
             result.push( new FriendsListUsersBean(friends, group._id, group.name))
         }
