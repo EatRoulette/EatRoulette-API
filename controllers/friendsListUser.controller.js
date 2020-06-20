@@ -1,8 +1,9 @@
-let FriendsListUserModel = require('../models').FriendsListUser;
-let FriendsListUserDao = require('../dao').FriendsListUserDao;
-let CoreController = require('./core.controller');
-let UserController = require('./user.controller');
-let mongoose = require('mongoose');
+const FriendsListUserModel = require('../models').FriendsListUser;
+const FriendsListUserDao = require('../dao').FriendsListUserDao;
+const CoreController = require('./core.controller');
+const SessionDao = require('../dao').SessionDAO;
+const UserController = require('./user.controller');
+const mongoose = require('mongoose');
 
 class FriendsListUserController extends CoreController {
 
@@ -60,6 +61,20 @@ class FriendsListUserController extends CoreController {
             .then(list => FriendsListUserController.render(list))
             .then(friendsListUser => res.status(200).json(friendsListUser))
                 .catch(next);
+    };
+
+    static async friendsListUsers_get_all_for_user(req, res, next) {
+        // creator
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId){
+            const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
+            res.status(200).json(groups)
+        }else{
+            res.status(500).json({
+                message: `Une erreur est survenue`
+            })
+        }
     };
 
     static async get_friendsListUser_by_id(req,res,next) {

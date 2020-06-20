@@ -26,6 +26,22 @@ class FriendsListUserDao {
     static async getAllFriendsListUsers() {
         return FriendsListUser.find().populate('products');
     }
+    /**
+     * @returns {Promise<FriendsListUser[]>}
+     */
+    static async getAllFriendsListUsersForUserId(userId) {
+        return FriendsListUser.find({$and:[{"creator":{$eq:userId}}]})
+            .populate({
+                path: 'friendsListUser',
+                model: 'FriendsListUser',
+                select: 'id name users',
+                populate: [{
+                    path: 'users',
+                    model: 'User',
+                    select: 'firstName lastName'
+                }]
+            });
+    }
 
     /**
      * @returns {Promise<FriendsListUser[]>}

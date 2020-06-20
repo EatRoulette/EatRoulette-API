@@ -20,6 +20,7 @@ module.exports = function(app) {
     app.delete('/manage/friendsListUser/products/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser);
 
     app.get('/friendsListUsers', FriendsListUserController.friendsListUsers_get_all);
+    app.get('/myFriendsListUsers/:token', FriendsListUserController.friendsListUsers_get_all_for_user);
     app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
     app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
 
