@@ -21,6 +21,8 @@ module.exports = function(app) {
 
     app.get('/friendsListUsers', FriendsListUserController.friendsListUsers_get_all);
     app.get('/myFriendsListUsers/:token', FriendsListUserController.friendsListUsers_get_all_for_user);
+    app.post('/myFriendsListUsers/add/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_add_user);
+    app.post('/myFriendsListUsers/delete/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_delete_user);
     app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
     app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
 

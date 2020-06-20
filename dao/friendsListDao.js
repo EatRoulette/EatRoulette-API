@@ -31,16 +31,7 @@ class FriendsListUserDao {
      */
     static async getAllFriendsListUsersForUserId(userId) {
         return FriendsListUser.find({$and:[{"creator":{$eq:userId}}]})
-            .populate({
-                path: 'friendsListUser',
-                model: 'FriendsListUser',
-                select: '_id name users',
-                populate: [{
-                    path: 'users',
-                    model: 'User',
-                    select: 'firstName lastName'
-                }]
-            });
+            .populate('users');
     }
 
     /**

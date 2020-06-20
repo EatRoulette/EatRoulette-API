@@ -78,6 +78,37 @@ class FriendsListUserController extends CoreController {
         }
     };
 
+    static async friendsListUsers_add_user(req,res,next){
+        const {idFriend} = req.body;
+        const users = await FriendsListUserController.getUsers(req)
+        users.push(idFriend)
+        await FriendsListUserController.update(req, res, users)
+    }
+
+    static async friendsListUsers_delete_user(req,res,next){
+        const {idFriend} = req.body;
+        const users = await FriendsListUserController.getUsers(req)
+        users.remove(idFriend)
+        await FriendsListUserController.update(req, res, users)
+    }
+
+    static async update(req, res, users){
+        const token = req.params.token;
+        const {idGroup} = req.body;
+        const userId = await SessionDao.getUserIDByToken(token);
+
+        await FriendsListUserModel.updateOne({"_id":idGroup},{users:FriendsListUserController.eliminateDuplicates(users)})
+        const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
+        console.log(groups)
+        res.status(200).json(FriendsListUserController.manageFriendsListUsers(groups))
+    }
+
+    static async getUsers(req){
+        const {idGroup} = req.body;
+        const group = await FriendsListUserDao.findById(idGroup);
+        return group.users;
+    }
+
     static manageFriendsListUsers(friendsListUsers){
         const result = [];
         for(let group of friendsListUsers){
