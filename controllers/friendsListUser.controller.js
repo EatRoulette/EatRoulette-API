@@ -1,5 +1,7 @@
 const FriendsListUserModel = require('../models').FriendsListUser;
 const FriendsListUserDao = require('../dao').FriendsListUserDao;
+const ShortUserBean = require('../beans/shortUser.bean');
+const FriendsListUsersBean = require('../beans/friendsListUsers.bean');
 const CoreController = require('./core.controller');
 const SessionDao = require('../dao').SessionDAO;
 const UserController = require('./user.controller');
@@ -60,22 +62,34 @@ class FriendsListUserController extends CoreController {
             .then(()=> FriendsListUserController.find({}))
             .then(list => FriendsListUserController.render(list))
             .then(friendsListUser => res.status(200).json(friendsListUser))
-                .catch(next);
+            .catch(next);
     };
 
     static async friendsListUsers_get_all_for_user(req, res, next) {
-        // creator
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
-            res.status(200).json(groups)
+            res.status(200).json(FriendsListUserController.manageFriendsListUsers(groups))
         }else{
             res.status(500).json({
                 message: `Une erreur est survenue`
             })
         }
     };
+
+    static manageFriendsListUsers(friendsListUsers){
+        const result = [];
+        for(let group of friendsListUsers){
+            const friends = []
+            for(let friend of group.users){
+                friends.push(new ShortUserBean(friend.firstName, friend.lastName))
+            }
+            result.push( new FriendsListUsersBean(friends, group._id, group.name))
+        }
+        return result;
+
+    }
 
     static async get_friendsListUser_by_id(req,res,next) {
         const id = req.params.friendsListUserId;

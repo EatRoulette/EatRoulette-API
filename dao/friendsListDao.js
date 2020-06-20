@@ -34,7 +34,7 @@ class FriendsListUserDao {
             .populate({
                 path: 'friendsListUser',
                 model: 'FriendsListUser',
-                select: 'id name users',
+                select: '_id name users',
                 populate: [{
                     path: 'users',
                     model: 'User',
