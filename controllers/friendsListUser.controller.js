@@ -93,9 +93,14 @@ class FriendsListUserController extends CoreController {
             creator: userId,
             users: []
         }
-        FriendsListUserController.create(newGroup).then(res.status(200).json({})).catch(res.status(500).json({
-            message: `Impossible d'enregistrer le nouveau groupe`
-        }))
+        const result = await FriendsListUserController.create(newGroup)
+        if(result){
+            res.status(200).json({})
+        }else {
+            res.status(500).json({
+                message: `Impossible d'enregistrer le nouveau groupe`
+            })
+        }
     }
 
     static async friendsListUsers_delete_user(req,res,next){

@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const FriendsListUserController = require('../controllers').FriendsListUserController;
+const RestaurantListController = require('../controllers').RestaurantListController;
 const UserController = require('../controllers').UserController;
 
 
@@ -26,6 +27,10 @@ module.exports = function(app) {
     app.post('/myFriendsListUsers/delete/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_delete_user);
     app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
     app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
+
+
+    app.get('/myRestaurantList/:token', RestaurantListController.get_all_for_user);
+    app.post('/myRestaurantList/new/:token', bodyParser.json(), RestaurantListController.create_for_user);
 
     app.get('/user/:token', UserController.get_user);
     app.post('/user/search', bodyParser.json(), async (req, res) => {
