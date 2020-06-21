@@ -46,6 +46,27 @@ class RestaurantListController extends CoreController {
         await RestaurantListController.update(req, res, restaurants)
     }
 
+
+    static async delete_restaurant(req,res,next){
+        const {idRestaurant} = req.body;
+        const restaurants = await RestaurantListController.getRestaurants(req)
+        restaurants.remove(idRestaurant)
+        await  RestaurantListController.update(req, res, restaurants)
+    }
+
+    static async delete_list(req,res,next){
+        const ret = await RestaurantListController.deleteById(req.params.id);
+
+        if(ret === -1) {
+            res.status(400).json({
+                message: "Une erreur est survenue lors de la suppression"
+            });
+        } else if(ret){
+            res.status(200).end();
+        }
+        res.status(500).end();
+    }
+
     static async update(req, res, restaurants){
         const token = req.params.token;
         const {idList} = req.body;
@@ -74,6 +95,21 @@ class RestaurantListController extends CoreController {
         }
         return result;
 
+    }
+
+    /**
+     * Delete restaurant if exist
+     * @param id
+     * @returns {Promise<number|*>}
+     */
+    static async deleteById(id){
+        const restaurant = await RestaurantListDao.findById(id);
+
+        if(restaurant) {
+            return await RestaurantListDao.deleteById(id);
+        } else {
+            return -1;
+        }
     }
 
 }

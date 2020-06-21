@@ -20,6 +20,18 @@ class RestaurantListDao {
         }
         return null;
     }
+
+
+    /**
+     * @param id {string}
+     * @returns {Promise<Boolean>}
+     */
+    static async deleteById(id) {
+        RestaurantList.deleteOne({_id: id}, (err) => {
+            if (err) return false;
+        });
+        return true;
+    }
 }
 
 module.exports = RestaurantListDao;
