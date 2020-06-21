@@ -84,6 +84,19 @@ class FriendsListUserController extends CoreController {
         users.push(idFriend)
         await FriendsListUserController.update(req, res, users)
     }
+    static async friendsListUsers_create(req,res,next){
+        const {name} = req.body; // name
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token); // creator
+        const newGroup = {
+            name: name,
+            creator: userId,
+            users: []
+        }
+        FriendsListUserController.create(newGroup).then(res.status(200).json({})).catch(res.status(500).json({
+            message: `Impossible d'enregistrer le nouveau groupe`
+        }))
+    }
 
     static async friendsListUsers_delete_user(req,res,next){
         const {idFriend} = req.body;
