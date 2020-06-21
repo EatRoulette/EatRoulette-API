@@ -45,7 +45,7 @@ class FriendsListUserDao {
      * @returns {Promise<FriendsListUser|undefined>}
      */
     static async findById(id) {
-        if(mongoose.Types.ObjectId.isValid(id)) return FriendsListUser.findOne({_id: id}).populate('products');
+        if(mongoose.Types.ObjectId.isValid(id)) return FriendsListUser.findOne({_id: id});
         else undefined;
     }
 

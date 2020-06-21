@@ -31,6 +31,7 @@ module.exports = function(app) {
 
     app.get('/myRestaurantList/:token', RestaurantListController.get_all_for_user);
     app.post('/myRestaurantList/new/:token', bodyParser.json(), RestaurantListController.create_for_user);
+    app.post('/myRestaurantList/add/:token', bodyParser.json(), RestaurantListController.add_restaurant);
 
     app.get('/user/:token', UserController.get_user);
     app.post('/user/search', bodyParser.json(), async (req, res) => {

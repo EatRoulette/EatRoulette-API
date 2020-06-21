@@ -3,6 +3,7 @@ const SessionDao = require('../dao').SessionDAO;
 const RestaurantListDao = require('../dao').RestaurantListDao;
 const RestaurantBean = require('../beans').RestaurantBean;
 const RestaurantListBean = require('../beans').RestaurantListBean;
+const RestaurantListModel = require('../models').RestaurantList;
 
 class RestaurantListController extends CoreController {
 
@@ -36,6 +37,30 @@ class RestaurantListController extends CoreController {
                 message: `Impossible d'enregistrer la nouvelle liste`
             })
         }
+    }
+
+    static async add_restaurant(req,res,next){
+        const {idRestaurant} = req.body;
+        const restaurants = await RestaurantListController.getRestaurants(req)
+        restaurants.push(idRestaurant)
+        await RestaurantListController.update(req, res, restaurants)
+    }
+
+    static async update(req, res, restaurants){
+        const token = req.params.token;
+        const {idList} = req.body;
+        const userId = await SessionDao.getUserIDByToken(token);
+
+        await RestaurantListModel.updateOne({"_id":idList},{restaurants:RestaurantListController.eliminateDuplicates(restaurants)})
+
+        const lists = await RestaurantListDao.getAllRestaurantListForUserId(userId)
+        res.status(200).json(RestaurantListController.manageRestaurantList(lists))
+    }
+
+    static async getRestaurants(req){
+        const {idList} = req.body;
+        const list = await RestaurantListDao.findById(idList);
+        return list.restaurants;
     }
 
     static manageRestaurantList(lists){
