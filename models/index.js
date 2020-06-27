@@ -6,5 +6,6 @@ module.exports = {
     TypeRestaurant: require('./type-restaurant.model'),
     Allergen: require('./allergen.model'),
     Characteristic: require('./characteristic.model'),
-    Ticket: require('./ticket.model')
+    Ticket: require('./ticket.model'),
+    Historical: require('./historical.model')
 };

@@ -7,5 +7,6 @@ module.exports = {
     TicketController: require('./ticket.controller'),
     AllergenController: require('./alleregen.controller'),
     CharacteristicController: require('./characteristic.controller'),
-    CrawlerController: require('./crawler.controller')
+    CrawlerController: require('./crawler.controller'),
+    HistoricalController: require('./historical.controller')
 };

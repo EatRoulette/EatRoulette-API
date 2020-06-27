@@ -1,5 +1,6 @@
 const bodyParser = require('body-parser');
 const FriendsListUserController = require('../controllers').FriendsListUserController;
+const HistoricalController = require('../controllers').HistoricalController;
 const UserController = require('../controllers').UserController;
 
 
@@ -8,6 +9,10 @@ module.exports = function(app) {
     /**
      * Menu management
      */
+
+    app.post('/gotoRestaurant/user', bodyParser.json(), HistoricalController.create_history);
+
+    app.get('/tracking/restaurant/user/:idUser', HistoricalController.render_stats_about_a_user);
 
     app.post('/manage/create/friendsListUser', bodyParser.json(), FriendsListUserController.create_friendsListUser);
 
