@@ -6,6 +6,10 @@ const AllergenController = require('../controllers').AllergenController;
 module.exports = function(app) {
 
     /**
+     * get Random Restaurant from an list of restaurants sent by the user
+     */
+    app.get('/restaurant/rand/:idListRestaurant', bodyParser.json(), RestaurantController.getRandomList);
+    /**
      * Create restaurant
      */
     app.post('/restaurant', bodyParser.json(), async (req, res) => {
@@ -40,6 +44,7 @@ module.exports = function(app) {
      * Get random restaurant
      */
     app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+        console.log(req.body)
         const randRest = await RestaurantController.getRandomRestaurant(req.body);
 
         if(randRest){

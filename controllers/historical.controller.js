@@ -91,7 +91,7 @@ class HistoricalController extends CoreController {
         let userStats = {};
         let friendsStats = [];
         let restaurantsStats = [];
-        let allstats = {};
+        let allstats;
         const result = await HistoryModel.find({
             users:{
                 $in:[idUser]

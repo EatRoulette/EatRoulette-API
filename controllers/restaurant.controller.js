@@ -37,6 +37,10 @@ class RestaurantController {
         return undefined;
     }
 
+    static getRandomList(req,res,next){
+
+    }
+
     /**
      * Get restaurant by id
      * @param id
@@ -132,10 +136,6 @@ class RestaurantController {
      */
     static async getRandomRestaurant(json){
         const allRestaurants = await RestaurantDAO.getByElement(json);
-
-        console.log("-------------")
-        console.log(allRestaurants);
-
         if(allRestaurants){
             if (allRestaurants.length > 0){
                 const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
