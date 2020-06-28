@@ -1,7 +1,6 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
-const AllergenController = require('../controllers').AllergenController;
 
 module.exports = function(app) {
 
@@ -19,6 +18,21 @@ module.exports = function(app) {
             res.status(400).end();
         } else if(ret){
             res.status(201).json(ret);
+        }
+        res.status(500).end();
+
+    });
+
+    /**
+     * Add restaurant from front
+     */
+    app.post('/restaurant/add', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addRestaurant(req);
+
+        if(ret === -1){
+            res.status(400).end();
+        } else if(ret){
+            res.status(200).json(ret);
         }
         res.status(500).end();
 

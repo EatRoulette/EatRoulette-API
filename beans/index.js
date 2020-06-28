@@ -6,4 +6,5 @@ module.exports = {
     TicketBean: require('./ticket.bean'),
     CommentBean: require('./comment.bean'),
     RestaurantBean: require('./restaurant.bean'),
+    RestaurantListBean: require('./restaurantList.bean'),
 };

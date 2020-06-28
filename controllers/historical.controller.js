@@ -187,5 +187,4 @@ class HistoricalController extends CoreController {
 }
 
 HistoricalController.prototype.modelName = 'historical';
-
 module.exports = HistoricalController;
