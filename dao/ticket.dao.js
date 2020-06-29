@@ -38,6 +38,30 @@ class TicketDao {
             });
     }
 
+    /**
+     * Get all tickets with any status except "done"
+     * Relevant for admin application
+     * @returns {Promise<*>}
+     */
+    static async getOpenedTickets(){
+        return await Ticket.find({status: { $ne: "done" }});
+    }
+
+    /**
+     *
+     * @param id
+     * @param newStatus
+     * @returns {Promise<Ticket|void|undefined>}
+     */
+    static async updateStatus(id, newStatus){
+        if(mongoose.Types.ObjectId.isValid(id)){
+            return Ticket.findOneAndUpdate({_id: id}, {status: newStatus},{
+                new: true //To return model after update
+            });
+        }
+        return undefined;
+    }
+
 }
 
 module.exports = TicketDao;
