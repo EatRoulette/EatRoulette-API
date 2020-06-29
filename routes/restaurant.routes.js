@@ -1,10 +1,13 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
-const AllergenController = require('../controllers').AllergenController;
 
 module.exports = function(app) {
 
+    /**
+     * get Random Restaurant from an list of restaurants sent by the user
+     */
+    app.get('/restaurant/rand/:idListRestaurant', bodyParser.json(), RestaurantController.getRandomList);
     /**
      * Create restaurant
      */
@@ -15,6 +18,21 @@ module.exports = function(app) {
             res.status(400).end();
         } else if(ret){
             res.status(201).json(ret);
+        }
+        res.status(500).end();
+
+    });
+
+    /**
+     * Add restaurant from front
+     */
+    app.post('/restaurant/add', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addRestaurant(req);
+
+        if(ret === -1){
+            res.status(400).end();
+        } else if(ret){
+            res.status(200).json(ret);
         }
         res.status(500).end();
 
@@ -40,6 +58,7 @@ module.exports = function(app) {
      * Get random restaurant
      */
     app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+        console.log(req.body)
         const randRest = await RestaurantController.getRandomRestaurant(req.body);
 
         if(randRest){

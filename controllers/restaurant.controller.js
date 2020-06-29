@@ -8,6 +8,12 @@ const Tools = require('../utils').Util;
 class RestaurantController {
 
     /**
+     *
+     */
+    static getRandomList(req,res,next){
+
+    }
+    /**
      * Save the restaurant
      * @param req
      * @returns {Promise<void>}
@@ -19,6 +25,19 @@ class RestaurantController {
             restaurant = await RestaurantDAO.saveRestaurant(restaurant);
             restaurant = await this.getRestaurantsById(restaurant._id);
             return restaurant;
+        } else {
+            return -1; //Bad request
+        }
+    }
+    /**
+     * add the restaurant
+     * @param req
+     * @returns {Promise<void>}
+     */
+    static async addRestaurant(req){
+        const restaurant = await this.buildRestaurantFromBean(req);
+        if(restaurant){
+            return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
             return -1; //Bad request
         }
@@ -116,13 +135,16 @@ class RestaurantController {
     }
 
     static manageRestaurant(restaurant){
-        console.log(JSON.stringify(restaurant))
-        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address);
+        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address, restaurant.city);
     }
 
     static manageRestaurants(restaurants){
         const result = []
-        restaurants.forEach(r => result.push(this.manageRestaurant(r)))
+        restaurants.forEach(r => {
+            if(r.status !== 'pending'){
+                result.push(this.manageRestaurant(r))
+            }
+        })
         return result;
     }
 
@@ -132,10 +154,6 @@ class RestaurantController {
      */
     static async getRandomRestaurant(json){
         const allRestaurants = await RestaurantDAO.getByElement(json);
-
-        console.log("-------------")
-        console.log(allRestaurants);
-
         if(allRestaurants){
             if (allRestaurants.length > 0){
                 const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
@@ -316,6 +334,66 @@ class RestaurantController {
                 _idSituation: req.body._idSituation
             }
             return restaurant;
+
+        } else {
+            return false;
+        }
+    }
+
+    static async getCharacteristics(req ){
+        const characteristics = []
+        for(const characteristic of req.body.characteristics){
+            const newCharacteristic = await RestaurantController.getCharacteristic(characteristic)
+            if(newCharacteristic !== -1){
+                characteristics.push(newCharacteristic)
+            }
+        }
+        return characteristics;
+    }
+
+    static async getCharacteristic(characteristic){
+        return await CharacteristicController.getCharacteristicById(characteristic.id)
+    }
+
+    static async getAllergen(allergen){
+        return await AllergenController.getAllergenById(allergen.id)
+    }
+
+    static async getAllergens(req ){
+        const allergens = []
+        for(const allergen of req.body.allergens){
+            const newAllergen = await RestaurantController.getAllergen(allergen)
+            if(newAllergen !== -1){
+                allergens.push(newAllergen)
+            }
+        }
+        return allergens;
+    }
+
+    static async buildRestaurantFromBean(req){
+        let characteristics = []
+        let allergens = []
+
+        if (req.body.name && req.body.address && req.body.city &&
+            req.body.postalCode ) {
+            if(req.body.allergens){
+                allergens = await RestaurantController.getAllergens(req)
+            }
+            if(req.body.characteristics){
+                characteristics = await RestaurantController.getCharacteristics(req)
+            }
+            return {
+                name: req.body.name,
+                website: req.body.website,
+                address: req.body.address,
+                city: req.body.city,
+                postalCode: req.body.postalCode,
+                dep: req.body.dep,
+                characteristics: characteristics,
+                allergens: allergens,
+                status: 'pending',
+                // TODO types: for now, table does not exists so front doesn't send it (because he has no type to make the user choose)
+            }
 
         } else {
             return false;

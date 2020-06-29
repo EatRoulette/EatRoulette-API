@@ -57,6 +57,28 @@ class UserDao {
         };
 
     }
+    /**
+     * @returns {Promise<User|undefined>}
+     * @param firstName
+     */
+    static async searchUserByFirstName(firstName) {
+        return User.find({firstName: firstName}).populate('', '-__v -restaurants -users');
+    }
+    /**
+     * @returns {Promise<User|undefined>}
+     * @param lastName
+     */
+    static async searchUserByLastName(lastName) {
+        return User.find({lastName: lastName}).populate('', '-__v -restaurants -users');
+    }
+    /**
+     * @returns {Promise<User|undefined>}
+     * @param firstName
+     * @param lastName
+     */
+    static async searchUserByFirstNameAndLastName(firstName, lastName) {
+        return User.find({lastName: lastName, firstName: firstName}).populate('', '-__v -restaurants -users');
+    }
 
     /**
      * @param id {string}
