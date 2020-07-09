@@ -12,6 +12,7 @@ class RestaurantListController extends CoreController {
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const lists = await RestaurantListDao.getAllRestaurantListForUserId(userId)
+            // todo les types sont mal récupérés (mal populés)
             res.status(200).json(RestaurantListController.manageRestaurantList(lists))
         }else{
             res.status(500).json({
@@ -45,7 +46,6 @@ class RestaurantListController extends CoreController {
         restaurants.push(idRestaurant)
         await RestaurantListController.update(req, res, restaurants)
     }
-
 
     static async delete_restaurant(req,res,next){
         const {idRestaurant} = req.body;
