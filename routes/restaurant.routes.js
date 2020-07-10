@@ -93,9 +93,14 @@ module.exports = function(app) {
         const nameFilter = filters.name;
         const friendListFilter = filters.friendList;
 
-        // todo n'y a t il pas une façon plus propre de gérer ça?
-        // todo par ex récupérer tous les restaurants et filtrer en java en fonction d es critères?
+        // todo  récupérer tous les restaurants et filtrer en js en fonction d es critères
         // todo pour les amis on va de toute façon donner un poids au restaurants en fonction des préférences "validés"
+        // chaque filtre aurta un poids , accumulé avec chaque amis
+        // si match avec restau => poids du restau augmente
+        // historique match : poids diminue
+        // on prend le plus grands poids, random sur les 5 premiers
+        // attention name doit dégager => on remplace par ville
+
 
         if(userId){
             const selectedList = filters.list // id de la liste sélectionnée par l'utilisateur
