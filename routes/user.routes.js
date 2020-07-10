@@ -1,8 +1,9 @@
 const bodyParser = require('body-parser');
 const FriendsListUserController = require('../controllers').FriendsListUserController;
+const RestaurantListController = require('../controllers').RestaurantListController;
 const UserController = require('../controllers').UserController;
 const HistoricalController = require('../controllers').HistoricalController;
-const RestaurantListController = require('../controllers').RestaurantListController;
+const SessionDao = require('../dao').SessionDAO;
 
 
 module.exports = function(app) {
@@ -41,23 +42,34 @@ module.exports = function(app) {
     app.delete('/myRestaurantList/:id', RestaurantListController.delete_list);
 
     app.get('/user/:token', UserController.get_user);
-    app.post('/user/search', bodyParser.json(), async (req, res) => {
+
+
+    app.post('/user/update/:token', bodyParser.json(), UserController.modif_user);
+
+    app.post('/user/search/:token', bodyParser.json(), async (req, res) => {
         // UserController.search_user
         let ret;
-        const { firstName, lastName} = req.body
-        if(firstName && !lastName){
-            ret = await UserController.searchUserByFirstName(firstName)
-        }else if(!firstName && lastName){
-            ret = await UserController.searchUserByLastName(lastName)
-        }else if(firstName && lastName){
-            ret = await UserController.searchUserByFirstNameAndLastName(firstName, lastName)
-        }
-
-        if(ret){
-            res.status(200).json(ret);
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId){
+            const { firstName, lastName} = req.body
+            if(firstName && !lastName){
+                ret = await UserController.searchUserByFirstName(firstName)
+            }else if(!firstName && lastName){
+                ret = await UserController.searchUserByLastName(lastName)
+            }else if(firstName && lastName){
+                ret = await UserController.searchUserByFirstNameAndLastName(firstName, lastName)
+            }
+            const newRes = ret.filter(user => user.id.toString() !== userId.toString())
+            if(newRes){
+                res.status(200).json(newRes);
+            }else{
+                res.status(500).end();
+            }
         }else{
             res.status(500).end();
         }
+
     });
 
 };
