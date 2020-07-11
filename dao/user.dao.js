@@ -10,37 +10,15 @@ class UserDao {
      * @returns {Promise<User>}
      */
     static async updateUser(user, userId) {
-        const userToUpdate = await this.findById(userId)
-        if(userToUpdate){
-            userToUpdate.characteristics = user.characteristics;
-            userToUpdate.allergens = user.allergens;
+        const newUser = await this.findById(userId)
+        if(newUser){
+            newUser.characteristics = user.characteristics;
+            newUser.allergens = user.allergens;
             if(user.hasCompletedSituation){
-                userToUpdate.hasCompletedSituation = user.hasCompletedSituation;
+                newUser.hasCompletedSituation = user.hasCompletedSituation;
             }
-            if( user.lastName !== userToUpdate.lastName){
-                userToUpdate.lastName = user.lastName
-            }
-            if( user.firstName !== userToUpdate.firstName){
-                userToUpdate.firstName = user.firstName
-            }
-            if( user.town !== userToUpdate.town){
-                userToUpdate.town = user.town
-            }
-            if( user.address !== userToUpdate.address){
-                userToUpdate.address = user.address
-            }
-            if( user.postalCode !== userToUpdate.postalCode){
-                userToUpdate.postalCode = user.postalCode
-            }
-            if( user.phone !== userToUpdate.phone){
-                userToUpdate.phone = user.phone
-            }
-            if( user.email !== userToUpdate.email){
-                userToUpdate.email = user.email
-            }
-            return await userToUpdate.save();
-        }else{
-            user.save();
+            await newUser.save();
+            return newUser;
         }
         return null;
     }
@@ -78,39 +56,6 @@ class UserDao {
             return undefined;
         };
 
-    }
-    /**
-     * @param email {string}
-     * @returns {Promise<User|undefined>}
-     */
-    static async findByEmail(email) {
-            return User.findOne({email: email});
-    }
-    /**
-     * @returns {Promise<User|undefined>}
-     * @param firstName
-     */
-    static async searchUserByFirstName(firstName) {
-        const regex = new RegExp(["^", firstName, "$"].join(""), "i");
-        return User.find({firstName: regex}).populate('', '-__v -restaurants -users');
-    }
-    /**
-     * @returns {Promise<User|undefined>}
-     * @param lastName
-     */
-    static async searchUserByLastName(lastName) {
-        const regex = new RegExp(["^", lastName, "$"].join(""), "i");
-        return User.find({lastName: regex}).populate('', '-__v -restaurants -users');
-    }
-    /**
-     * @returns {Promise<User|undefined>}
-     * @param firstName
-     * @param lastName
-     */
-    static async searchUserByFirstNameAndLastName(firstName, lastName) {
-        const regexFirstName = new RegExp(["^", firstName, "$"].join(""), "i");
-        const regexLastName = new RegExp(["^", lastName, "$"].join(""), "i");
-        return User.find({lastName: regexLastName, firstName: regexFirstName}).populate('', '-__v -restaurants -users');
     }
 
     /**

@@ -1,22 +1,12 @@
 const RestaurantDAO = require('../dao').RestaurantDAO;
-const RestaurantListDAO = require('../dao').RestaurantListDao;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
-const AllergenController = require('./alleregen.controller');
-const CharacteristicController = require('./characteristic.controller');
-const TypeRestaurantController = require('./type-restaurant.controller');
 const CharacteristicDAO = require('../dao').CharacteristicDAO;
 const RestaurantBean = require('../beans').RestaurantBean;
 const Tools = require('../utils').Util;
 
 class RestaurantController {
 
-    /**
-     *
-     */
-    static getRandomList(req,res,next){
-
-    }
     /**
      * Save the restaurant
      * @param req
@@ -29,19 +19,6 @@ class RestaurantController {
             restaurant = await RestaurantDAO.saveRestaurant(restaurant);
             restaurant = await this.getRestaurantsById(restaurant._id);
             return restaurant;
-        } else {
-            return -1; //Bad request
-        }
-    }
-    /**
-     * add the restaurant
-     * @param req
-     * @returns {Promise<void>}
-     */
-    static async addRestaurant(req){
-        const restaurant = await this.buildRestaurantFromBean(req);
-        if(restaurant){
-            return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
             return -1; //Bad request
         }
@@ -139,16 +116,13 @@ class RestaurantController {
     }
 
     static manageRestaurant(restaurant){
-        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address, restaurant.city);
+        console.log(JSON.stringify(restaurant))
+        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address);
     }
 
     static manageRestaurants(restaurants){
         const result = []
-        restaurants.forEach(r => {
-            if(r.status !== 'pending'){
-                result.push(this.manageRestaurant(r))
-            }
-        })
+        restaurants.forEach(r => result.push(this.manageRestaurant(r)))
         return result;
     }
 
@@ -158,44 +132,14 @@ class RestaurantController {
      */
     static async getRandomRestaurant(json){
         const allRestaurants = await RestaurantDAO.getByElement(json);
+
+        console.log("-------------")
+        console.log(allRestaurants);
+
         if(allRestaurants){
             if (allRestaurants.length > 0){
                 const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
                 return allRestaurants[randomNumber];
-            } else {
-                return -1;
-            }
-        }
-        return undefined;
-    }
-    /**
-     * Return a random restaurant by user List
-     * @returns {Promise<*>}
-     */
-    static async getRandomRestaurantByUserList(listId){
-        const list = await RestaurantListDAO.findById(listId);
-
-        if(list && list.restaurants){
-            if (list.restaurants.length > 0){
-                const randomNumber = Tools.getRandomInt(0, list.restaurants.length -1);
-                return list.restaurants[randomNumber];
-            } else {
-                return -1;
-            }
-        }
-        return undefined;
-    }    /**
-     * Return a random restaurant by user List and name
-     * @returns {Promise<*>}
-     */
-    static async getRandomRestaurantByUserListAndName(listId, name){
-        const list = await RestaurantListDAO.findById(listId);
-
-        if(list && list.restaurants){
-            const filteredList = list.restaurants.filter(restaurant => restaurant.name.toLowerCase().contains(name.toLowerCase()))
-            if (filteredList.length > 0){
-                const randomNumber = Tools.getRandomInt(0, filteredList.length -1);
-                return filteredList[randomNumber];
             } else {
                 return -1;
             }
@@ -372,83 +316,6 @@ class RestaurantController {
                 _idSituation: req.body._idSituation
             }
             return restaurant;
-
-        } else {
-            return false;
-        }
-    }
-
-    static async getCharacteristics(req ){
-        const characteristics = []
-        for(const characteristic of req.body.characteristics){
-            const newCharacteristic = await RestaurantController.getCharacteristic(characteristic)
-            if(newCharacteristic !== -1){
-                characteristics.push(newCharacteristic)
-            }
-        }
-        return characteristics;
-    }
-    static async getTypesFromRequest(req ){
-        const types = []
-        for(const type of req.body.types){
-            const newType = await RestaurantController.getType(type)
-            if(newType !== -1){
-                types.push(newType)
-            }
-        }
-        return types;
-    }
-
-    static async getType(type){
-        return await TypeRestaurantController.getTypeById(type.id)
-    }
-    static async getCharacteristic(characteristic){
-        return await CharacteristicController.getCharacteristicById(characteristic.id)
-    }
-
-    static async getAllergen(allergen){
-        return await AllergenController.getAllergenById(allergen.id)
-    }
-
-    static async getAllergens(req ){
-        const allergens = []
-        for(const allergen of req.body.allergens){
-            const newAllergen = await RestaurantController.getAllergen(allergen)
-            if(newAllergen !== -1){
-                allergens.push(newAllergen)
-            }
-        }
-        return allergens;
-    }
-
-    static async buildRestaurantFromBean(req){
-        let characteristics = []
-        let allergens = []
-        let types = []
-
-        if (req.body.name && req.body.address && req.body.city &&
-            req.body.postalCode ) {
-            if(req.body.allergens){
-                allergens = await RestaurantController.getAllergens(req)
-            }
-            if(req.body.characteristics){
-                characteristics = await RestaurantController.getCharacteristics(req)
-            }
-            if(req.body.types){
-                types = await RestaurantController.getTypesFromRequest(req)
-            }
-            return {
-                name: req.body.name,
-                website: req.body.website,
-                address: req.body.address,
-                city: req.body.city,
-                postalCode: req.body.postalCode,
-                dep: req.body.dep,
-                characteristics: characteristics,
-                types: types,
-                allergens: allergens,
-                status: 'pending',
-            }
 
         } else {
             return false;

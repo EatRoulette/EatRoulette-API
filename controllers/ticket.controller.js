@@ -76,7 +76,7 @@ class TicketController extends CoreController {
                 author: userId,
                 type: data.type
             }
-            await TicketController.create(newTicket);
+            await TicketController.create(newTicket)
             res.status(200).json({
                 message: `The ticket has been created`
             })
@@ -278,51 +278,6 @@ class TicketController extends CoreController {
         }
         return super.update(id, data, options)
     }
-
-    /**
-     * Get all opened tickets is there is
-     * @returns {Promise<undefined| tickets>}
-     */
-    static async getOpenTickets(){
-        const openedTickets = await TicketDao.getOpenedTickets();
-
-        if (openedTickets){
-            return openedTickets;
-        }
-        return undefined;
-    }
-
-    /**
-     *
-     * @returns {Promise<void>}
-     */
-    static async updateTicketStatus(ticketId, newStatus){
-        const isStatusValid = await this.isStatusValid(newStatus);
-        if (!ticketId || !isStatusValid){
-            return -1;
-        }
-
-        const ticket = await TicketDao.updateStatus(ticketId, newStatus);
-
-        if ( ticket ){
-            return ticket;
-        } else {
-            return undefined;
-        }
-    }
-
-    /**
-     * Check if status valid
-     * @param status
-     * @returns {Promise<undefined|string>}
-     */
-    static async isStatusValid(status){
-        if (status === "done" || status === "pending" || status === "created" || status === "standby"){
-            return status;
-        }
-        return undefined;
-    }
-
 }
 
 TicketController.prototype.modelName = 'Ticket';

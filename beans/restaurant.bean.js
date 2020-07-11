@@ -3,18 +3,16 @@ class RestaurantBean{
     name;
     type;
     address;
-    city;
 
-    constructor(id, name, types, address, city) {
+    constructor(id, name, types, address) {
         this.id = id;
         this.name = name;
         this.type = "";
-        types.forEach((t, index) => this.type += index !== types.length -1 ? t.name + ", " : t.name)
+        types.forEach(t => this.type += (t + ", "))
         if(types.length > 0){
-            this.type.slice(0, -2)
+            this.type.slice(0, -1)
         }
         this.address = address;
-        this.city = city;
     }
 }
 module.exports = RestaurantBean;
