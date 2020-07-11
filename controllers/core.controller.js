@@ -188,6 +188,13 @@ class Core {
     static getModel() {
         return mongoose.model(this.prototype.modelName);
     }
+
+    static contains(arr, key, val) {
+        for (let i = 0; i < arr.length; i++) {
+            if(arr[i][key] == val) return true;
+        }
+        return false;
+    }
 }
 
 // Model Name of the controller

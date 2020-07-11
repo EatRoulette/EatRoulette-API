@@ -76,9 +76,6 @@ class HistoricalController extends CoreController {
     static async render_stats_about_a_user(req, res, next){
         let idUser = req.params.idUser;
 
-
-
-
         await UserController.userNotExist(req,res,next,idUser);
         let allStats = await HistoricalController.createStats(idUser);
 
@@ -134,7 +131,11 @@ class HistoricalController extends CoreController {
 
             for (let i = 0; i < restaurantInfo.types.length; i++){
                 if(HistoricalController.contains(userStats.typesGoStats,"type",''+restaurantInfo.types[i].name)){
-                    userStats.typesGoStats[i].count++;
+                    for (const goTo of userStats.typesGoStats){
+                        if(goTo.type === restaurantInfo.types[i].name){
+                            goTo.count++;
+                        }
+                    }
                 } else {
                     userStats.typesGoStats.push({
                         "type": ''+restaurantInfo.types[i].name,
@@ -144,7 +145,11 @@ class HistoricalController extends CoreController {
             }
             for (let i = 0; i < restaurantInfo.characteristics.length; i++){
                 if(HistoricalController.contains(userStats.characteristicsGoStats,"characteristic",''+restaurantInfo.characteristics[i].name)){
-                    userStats.characteristicsGoStats[i].count++;
+                    for (const characteristic of userStats.characteristicsGoStats){
+                        if(characteristic.name === restaurantInfo.characteristics[i].name){
+                            characteristic.count++;
+                        }
+                    }
                 } else {
                     userStats.characteristicsGoStats.push({
                         "characteristic": ''+restaurantInfo.characteristics[i].name,
@@ -175,13 +180,6 @@ class HistoricalController extends CoreController {
         };
 
         return allstats;
-    }
-
-    static contains(arr, key, val) {
-        for (let i = 0; i < arr.length; i++) {
-            if(arr[i][key] == val) return true;
-        }
-        return false;
     }
 
 }
