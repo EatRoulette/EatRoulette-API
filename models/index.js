@@ -8,5 +8,6 @@ module.exports = {
     Allergen: require('./allergen.model'),
     Characteristic: require('./characteristic.model'),
     Ticket: require('./ticket.model'),
+    Comment: require('./ticket.model'),
     Historical: require('./historical.model')
 };

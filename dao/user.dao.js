@@ -91,14 +91,16 @@ class UserDao {
      * @param firstName
      */
     static async searchUserByFirstName(firstName) {
-        return User.find({firstName: firstName}).populate('', '-__v -restaurants -users');
+        const regex = new RegExp(["^", firstName, "$"].join(""), "i");
+        return User.find({firstName: regex}).populate('', '-__v -restaurants -users');
     }
     /**
      * @returns {Promise<User|undefined>}
      * @param lastName
      */
     static async searchUserByLastName(lastName) {
-        return User.find({lastName: lastName}).populate('', '-__v -restaurants -users');
+        const regex = new RegExp(["^", lastName, "$"].join(""), "i");
+        return User.find({lastName: regex}).populate('', '-__v -restaurants -users');
     }
     /**
      * @returns {Promise<User|undefined>}
@@ -106,7 +108,9 @@ class UserDao {
      * @param lastName
      */
     static async searchUserByFirstNameAndLastName(firstName, lastName) {
-        return User.find({lastName: lastName, firstName: firstName}).populate('', '-__v -restaurants -users');
+        const regexFirstName = new RegExp(["^", firstName, "$"].join(""), "i");
+        const regexLastName = new RegExp(["^", lastName, "$"].join(""), "i");
+        return User.find({lastName: regexLastName, firstName: regexFirstName}).populate('', '-__v -restaurants -users');
     }
 
     /**

@@ -1,5 +1,6 @@
 const CoreController = require('./core.controller');
 const SessionDao = require('../dao').SessionDAO;
+const RestaurantDao = require('../dao').RestaurantDAO;
 const RestaurantListDao = require('../dao').RestaurantListDao;
 const RestaurantBean = require('../beans').RestaurantBean;
 const RestaurantListBean = require('../beans').RestaurantListBean;
@@ -12,7 +13,8 @@ class RestaurantListController extends CoreController {
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const lists = await RestaurantListDao.getAllRestaurantListForUserId(userId)
-            res.status(200).json(RestaurantListController.manageRestaurantList(lists))
+            const result = await RestaurantListController.manageRestaurantList(lists)
+            res.status(200).json(result)
         }else{
             res.status(500).json({
                 message: `Une erreur est survenue`
@@ -46,7 +48,6 @@ class RestaurantListController extends CoreController {
         await RestaurantListController.update(req, res, restaurants)
     }
 
-
     static async delete_restaurant(req,res,next){
         const {idRestaurant} = req.body;
         const restaurants = await RestaurantListController.getRestaurants(req)
@@ -75,7 +76,8 @@ class RestaurantListController extends CoreController {
         await RestaurantListModel.updateOne({"_id":idList},{restaurants:RestaurantListController.eliminateDuplicates(restaurants)})
 
         const lists = await RestaurantListDao.getAllRestaurantListForUserId(userId)
-        res.status(200).json(RestaurantListController.manageRestaurantList(lists))
+        const result = await RestaurantListController.manageRestaurantList(lists)
+        res.status(200).json(result)
     }
 
     static async getRestaurants(req){
@@ -84,14 +86,16 @@ class RestaurantListController extends CoreController {
         return list.restaurants;
     }
 
-    static manageRestaurantList(lists){
+    static async manageRestaurantList(lists) {
         const result = [];
-        for(let list of lists){
+        for (let list of lists) {
             const restaurants = []
-            for(let restaurant of list.restaurants){
-                restaurants.push(new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address, restaurant.city))
+            for (let restaurant of list.restaurants) {
+                const restaurantWithType = await RestaurantDao.getById(restaurant._id)
+                restaurants.push(new RestaurantBean(restaurant._id, restaurant.name, restaurantWithType.types, restaurant.address, restaurant.city))
+
             }
-            result.push( new RestaurantListBean(restaurants, list._id, list.name))
+            result.push(new RestaurantListBean(restaurants, list._id, list.name))
         }
         return result;
 
