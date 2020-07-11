@@ -200,7 +200,8 @@ class RestaurantController extends CoreController{
 
     static async calculateScore(situation, restaurantList){
 
-        let result = {restaurants:[],scores: []};
+        // let result = {restaurants:[],scores: []};
+        let result = [];
         for(const restaurantId of restaurantList.restaurants){
             const restaurantData = await RestaurantDAO.getById(restaurantId);
 
@@ -218,6 +219,20 @@ class RestaurantController extends CoreController{
                     score += 10;
                 }
             }
+
+            for (const characteristic of situation.characteristics){
+                if(RestaurantController.contains(restaurantData.characteristics, "name", characteristic.name)){
+                    for(let i = 0; i < restaurantData.characteristics.length; i++){
+                        if(restaurantData.characteristics[i].name === characteristic.name){
+                            score += 10;
+                        }
+                    }
+                }
+                else {
+                    score -= 10;
+                }
+            }
+
             restaurantData.score = score;
             result.restaurants.push(restaurantData);
             result.scores.push(score);
