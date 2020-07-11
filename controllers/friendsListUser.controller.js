@@ -1,8 +1,11 @@
-let FriendsListUserModel = require('../models').FriendsListUser;
-let FriendsListUserDao = require('../dao').FriendsListUserDao;
-let CoreController = require('./core.controller');
-let UserController = require('./user.controller');
-let mongoose = require('mongoose');
+const FriendsListUserModel = require('../models').FriendsListUser;
+const FriendsListUserDao = require('../dao').FriendsListUserDao;
+const ShortUserBean = require('../beans/shortUser.bean');
+const FriendsListUsersBean = require('../beans/friendsListUsers.bean');
+const CoreController = require('./core.controller');
+const SessionDao = require('../dao').SessionDAO;
+const UserController = require('./user.controller');
+const mongoose = require('mongoose');
 
 class FriendsListUserController extends CoreController {
 
@@ -59,8 +62,82 @@ class FriendsListUserController extends CoreController {
             .then(()=> FriendsListUserController.find({}))
             .then(list => FriendsListUserController.render(list))
             .then(friendsListUser => res.status(200).json(friendsListUser))
-                .catch(next);
+            .catch(next);
     };
+
+    static async friendsListUsers_get_all_for_user(req, res, next) {
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        if(userId){
+            const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
+            res.status(200).json(FriendsListUserController.manageFriendsListUsers(groups))
+        }else{
+            res.status(500).json({
+                message: `Une erreur est survenue`
+            })
+        }
+    };
+
+    static async friendsListUsers_add_user(req,res,next){
+        const {idFriend} = req.body;
+        const users = await FriendsListUserController.getUsers(req)
+        users.push(idFriend)
+        await FriendsListUserController.update(req, res, users)
+    }
+    static async friendsListUsers_create(req,res,next){
+        const {name} = req.body; // name
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token); // creator
+        const newGroup = {
+            name: name,
+            creator: userId,
+            users: []
+        }
+        const result = await FriendsListUserController.create(newGroup)
+        if(result){
+            res.status(200).json({})
+        }else {
+            res.status(500).json({
+                message: `Impossible d'enregistrer le nouveau groupe`
+            })
+        }
+    }
+
+    static async friendsListUsers_delete_user(req,res,next){
+        const {idFriend} = req.body;
+        const users = await FriendsListUserController.getUsers(req)
+        users.remove(idFriend)
+        await FriendsListUserController.update(req, res, users)
+    }
+
+    static async update(req, res, users){
+        const token = req.params.token;
+        const {idGroup} = req.body;
+        const userId = await SessionDao.getUserIDByToken(token);
+
+        await FriendsListUserModel.updateOne({"_id":idGroup},{users:FriendsListUserController.eliminateDuplicates(users)})
+        const groups = await FriendsListUserDao.getAllFriendsListUsersForUserId(userId)
+        res.status(200).json(FriendsListUserController.manageFriendsListUsers(groups))
+    }
+
+    static async getUsers(req){
+        const {idGroup} = req.body;
+        const group = await FriendsListUserDao.findById(idGroup);
+        return group.users;
+    }
+
+    static manageFriendsListUsers(friendsListUsers){
+        const result = [];
+        for(let group of friendsListUsers){
+            const friends = []
+            for(let friend of group.users){
+                friends.push(new ShortUserBean(friend._id, friend.firstName, friend.lastName))
+            }
+            result.push( new FriendsListUsersBean(friends, group._id, group.name))
+        }
+        return result;
+
+    }
 
     static async get_friendsListUser_by_id(req,res,next) {
         const id = req.params.friendsListUserId;
@@ -204,18 +281,6 @@ class FriendsListUserController extends CoreController {
                 }
             }))
             .catch(next);
-    }
-
-    static eliminateDuplicates(arr) {
-        let i, len=arr.length, out=[], obj={};
-
-        for (i=0;i<len;i++) {
-            obj[arr[i]]=0;
-        }
-        for (i in obj) {
-            out.push(i);
-        }
-        return out;
     }
 
     static async friendsListUserNotExist(req,res,next,id){

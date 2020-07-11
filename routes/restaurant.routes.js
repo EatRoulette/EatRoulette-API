@@ -1,10 +1,14 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
-const AllergenController = require('../controllers').AllergenController;
+const SessionDao = require('../dao').SessionDAO;
 
 module.exports = function(app) {
 
+    /**
+     * get Random Restaurant from an list of restaurants sent by the user
+     */
+    app.get('/restaurant/rand/:idListRestaurant', bodyParser.json(), RestaurantController.getRandomList);
     /**
      * Create restaurant
      */
@@ -15,6 +19,21 @@ module.exports = function(app) {
             res.status(400).end();
         } else if(ret){
             res.status(201).json(ret);
+        }
+        res.status(500).end();
+
+    });
+
+    /**
+     * Add restaurant from front
+     */
+    app.post('/restaurant/add', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addRestaurant(req); // TODO manage types
+
+        if(ret === -1){
+            res.status(400).end();
+        } else if(ret){
+            res.status(200).json(ret);
         }
         res.status(500).end();
 
@@ -40,6 +59,7 @@ module.exports = function(app) {
      * Get random restaurant
      */
     app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+        console.log(req.body)
         const randRest = await RestaurantController.getRandomRestaurant(req.body);
 
         if(randRest){
@@ -47,6 +67,72 @@ module.exports = function(app) {
                 res.status(204).end();
             } else if (randRest){
                 res.status(200).json(randRest);
+            }
+        }
+        res.status(500).end();
+    });
+
+    /**
+     * Get random restaurant roll
+     */
+    app.get('/restaurant/roll', async (req, res) => {
+        // TODO roll
+        const {filters} = this.req.body;
+        /*
+        name
+      list de restaurants
+      liste d'amis
+      // déco
+          characteristics
+          allergens
+          city
+         */
+        const token = req.params.token;
+        const userId = token && await SessionDao.getUserIDByToken(token);
+        let rollRestaurant = null;
+        const nameFilter = filters.name;
+        const friendListFilter = filters.friendList;
+
+        // todo  récupérer tous les restaurants et filtrer en js en fonction d es critères
+        // todo pour les amis on va de toute façon donner un poids au restaurants en fonction des préférences "validés"
+        // chaque filtre aurta un poids , accumulé avec chaque amis
+        // si match avec restau => poids du restau augmente
+        // historique match : poids diminue
+        // on prend le plus grands poids, random sur les 5 premiers
+        // attention name doit dégager => on remplace par ville
+
+
+        if(userId){
+            const selectedList = filters.list // id de la liste sélectionnée par l'utilisateur
+            if(selectedList && !friendListFilter){
+                if(nameFilter){
+                    // todo filter avec nos préférences
+                    // donc fetch les restaurants de la liste puis filter ?
+                    // et faire le random a la fin
+                    rollRestaurant = await RestaurantController.getRandomRestaurantByUserListAndName(selectedList, nameFilter);
+                }else{
+                    // todo filter avec nos préférences
+                    rollRestaurant = await RestaurantController.getRandomRestaurantByUserList(selectedList);
+                }
+            }else if( !friendListFilter){
+                // todo filter avec nos préférences
+                if(nameFilter){
+
+                }else{
+
+                }
+                // rollRestaurant  = await RestaurantController.getRandomRestaurant();
+            }else {
+                // todo filter avec les préférences des amis en plus
+            }
+        }else{
+            // todo search déconnecté donc avec les filters sélectionnés
+        }
+        if(rollRestaurant){
+            if(rollRestaurant === -1){
+                res.status(204).end();
+            } else if (rollRestaurant){
+                res.status(200).json(rollRestaurant);
             }
         }
         res.status(500).end();
@@ -199,7 +285,6 @@ module.exports = function(app) {
         }
         res.status(500).end();
     });
-
 
     /**
      * Type restaurants management

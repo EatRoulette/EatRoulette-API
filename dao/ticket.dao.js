@@ -12,12 +12,7 @@ class TicketDao {
             .populate({
                 path: 'ticket',
                 model: 'Ticket',
-                select: 'id title message status type comments',
-                populate: {
-                    path: 'comments',
-                    model: 'Comment',
-                    select: 'message author'
-                }
+                select: 'id title message status type comments'
             });
     }
     /**
@@ -36,6 +31,30 @@ class TicketDao {
                     select: 'message author'
                 }
             });
+    }
+
+    /**
+     * Get all tickets with any status except "done"
+     * Relevant for admin application
+     * @returns {Promise<*>}
+     */
+    static async getOpenedTickets(){
+        return await Ticket.find({status: { $ne: "done" }});
+    }
+
+    /**
+     *
+     * @param id
+     * @param newStatus
+     * @returns {Promise<Ticket|void|undefined>}
+     */
+    static async updateStatus(id, newStatus){
+        if(mongoose.Types.ObjectId.isValid(id)){
+            return Ticket.findOneAndUpdate({_id: id}, {status: newStatus},{
+                new: true //To return model after update
+            });
+        }
+        return undefined;
     }
 
 }
