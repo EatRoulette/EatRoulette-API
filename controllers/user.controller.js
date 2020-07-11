@@ -151,7 +151,7 @@ class UserController extends CoreController{
                     // save new data
                    userUpdated = await UserController.update_user(data, userId);
                 }
-                console.log(userUpdated)
+
                 res.status(200).json(userUpdated);
             } else {
                 res.status(500).end();

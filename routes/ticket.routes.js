@@ -31,7 +31,7 @@ module.exports = function(app) {
     app.put('/ticket/desk/:id/:status', async (req, res) => {
         const ret = await TicketController.updateTicketStatus(req.params.id, req.params.status);
 
-        console.log(ret)
+
 
        if (ret === -1 ){
            res.status(400).end()

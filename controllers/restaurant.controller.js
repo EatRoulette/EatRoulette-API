@@ -185,12 +185,14 @@ class RestaurantController extends CoreController{
             if (restaurantList.restaurants.length > 0){
                 const situation = await FriendsListController.getFriendsListSituation(friendList);
                 let results = await RestaurantController.calculateScore(situation, restaurantList);
-                for ( let restaurant of results.restaurants){
-                    console.log(restaurant.score)
+                let limit = results.length/3;
+                if(results.length <= 2){
+                    limit = 1;
                 }
-                // TODO :
-                const randomNumber = Tools.getRandomInt(0, restaurantList.restaurants.length -1);
-                return restaurantList.restaurants[randomNumber];
+                results = await RestaurantController.sortOnly(results, limit);
+
+                const randomNumber = Tools.getRandomInt(0, results.length -1);
+                return {restaurant:results[randomNumber], score:results[randomNumber].score};
             } else {
                 return -1;
             }
@@ -198,9 +200,19 @@ class RestaurantController extends CoreController{
         return undefined;
     }
 
-    static async calculateScore(situation, restaurantList){
 
-        // let result = {restaurants:[],scores: []};
+
+    static async sortOnly(results, limit){
+        let resultSorted = [];
+        // sort by Score
+        results.sort(compareScore);
+        for (let i = 0; i < limit; i++){
+            resultSorted.push(results[i]);
+        }
+        return resultSorted;
+    }
+
+    static async calculateScore(situation, restaurantList){
         let result = [];
         for(const restaurantId of restaurantList.restaurants){
             const restaurantData = await RestaurantDAO.getById(restaurantId);
@@ -224,21 +236,15 @@ class RestaurantController extends CoreController{
                 if(RestaurantController.contains(restaurantData.characteristics, "name", characteristic.name)){
                     for(let i = 0; i < restaurantData.characteristics.length; i++){
                         if(restaurantData.characteristics[i].name === characteristic.name){
-                            score += 10;
+                            score += 15*characteristic.rate/100;
                         }
                     }
-                }
-                else {
-                    score -= 10;
                 }
             }
 
             restaurantData.score = score;
-            result.restaurants.push(restaurantData);
-            result.scores.push(score);
-
+            result.push(restaurantData);
         }
-
         return result;
     }
     /**
@@ -514,6 +520,19 @@ class RestaurantController extends CoreController{
 
 
 
+}
+
+function compareScore(a, b) {
+    const scoreA = a.score;
+    const scoreB = b.score;
+
+    let comparison = 0;
+    if (scoreA < scoreB) {
+        comparison = 1;
+    } else if (scoreA > scoreB) {
+        comparison = -1;
+    }
+    return comparison;
 }
 
 module.exports = RestaurantController;
