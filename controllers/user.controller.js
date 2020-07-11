@@ -1,5 +1,4 @@
 const UserBean = require('../beans/user.bean');
-const ShortUserBean = require('../beans/shortUser.bean');
 const AllergenBean = require('../beans/allergen.bean');
 const CharacteristicBean = require('../beans/characteristic.bean');
 const UserDao = require('../dao').UserDAO;
@@ -131,35 +130,20 @@ class UserController extends CoreController{
     }
 
     static async modif_user(req, res, next){
-        const token = req.params.token;
+        const id = req.params.userId;
         let data = req.body;
-        const userId = await SessionDao.getUserIDByToken(token);
-        if(userId){
-            const user = await UserController.get_user_by_id(userId);
-            if(user){
-                let userUpdated = null;
-                // check if isNewEmail => already exists
-                const email = data.email;
-                if(email !== user.email){
-                    const exists = UserController.get_user_by_email(email)
-                    if(exists){
-                        res.status(500).end();
-                    }else{
-                        userUpdated = await UserController.update_user(data, userId);
-                    }
-                }else {
-                    // save new data
-                   userUpdated = await UserController.update_user(data, userId);
-                }
-                console.log(userUpdated)
-                res.status(200).json(userUpdated);
-            } else {
-                res.status(500).end();
-            }
-        }else{
-            res.status(500).end();
-        }
-
+        Promise.resolve()
+            .then(() =>
+                UserController.userNotExist(req,res,next,id)
+            )
+            .then(user => {
+                //TODO check if email already exist
+                user.set(data);
+                return user.save();
+            })
+            .then(user => UserController.render(user))
+            .then(user => res.json(user))
+            .catch(next);
     }
 
     static async userNotExist(req,res,next,id){
@@ -186,33 +170,6 @@ class UserController extends CoreController{
         }
     }
 
-    static async searchUserByFirstName(firstName){
-        const users = await UserDao.searchUserByFirstName(firstName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
-    static async searchUserByLastName(lastName){
-        const users = await UserDao.searchUserByLastName(lastName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
-    static async searchUserByFirstNameAndLastName(firstName, lastName){
-        const users = await UserDao.searchUserByFirstNameAndLastName(firstName, lastName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
     static async get_user_by_id(userId){
         const userDao = await UserDao.findById(userId);
         if(userDao){
@@ -224,12 +181,6 @@ class UserController extends CoreController{
             return user;
         }
         return null;
-    }
-
-
-    static async get_user_by_email(email){
-        const userDao = await UserDao.findByEmail(email);
-        return !!userDao;
     }
 
     static async update_user(userUpdate, userId){

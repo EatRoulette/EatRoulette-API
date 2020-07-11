@@ -3,11 +3,8 @@ module.exports = {
     Session: require('./session.model'),
     Restaurant: require('./restaurant.model'),
     FriendsListUser: require('./friendsListUser.model'),
-    RestaurantList: require('./restaurantList.model'),
     TypeRestaurant: require('./type-restaurant.model'),
     Allergen: require('./allergen.model'),
     Characteristic: require('./characteristic.model'),
-    Ticket: require('./ticket.model'),
-    Comment: require('./ticket.model'),
-    Historical: require('./historical.model')
+    Ticket: require('./ticket.model')
 };

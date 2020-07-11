@@ -49,35 +49,25 @@ class RestaurantDao {
      * search restaurant
      */
     static async searchByName(name){
-        const regex = new RegExp(["^", name, "$"].join(""), "i");
-        return await Restaurant.find({name: regex}).populate('types ', '-__v -users');
+        return await Restaurant.find({name: name}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByCity(city){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex}).populate('types ', '-__v -users');
+        return await Restaurant.find({city: city}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByPostalCode(postalCode){
-        const regex = new RegExp(["^", postalCode, "$"].join(""), "i");
-        return await Restaurant.find({postalCode: regex}).populate('types ', '-__v -users');
+        return await Restaurant.find({postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByCityAndPostalCode(city, postalCode){
-        const regexCity = new RegExp(["^", city, "$"].join(""), "i");
-        const regexPostalCode = new RegExp(["^", postalCode, "$"].join(""), "i");
-        return await Restaurant.find({city: regexCity, postalCode: regexPostalCode}).populate('types ', '-__v -users');
+        return await Restaurant.find({city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByNameAndPostalCode(name, postalCode){
-        return await Restaurant.find({name: name, postalCode: postalCode}).populate('types ', '-__v -users');
+        return await Restaurant.find({name: name, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByNameAndCity(name, city){
-        const regexName = new RegExp(["^", name, "$"].join(""), "i");
-        const regexCity = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({name: regexName, city: regexCity}).populate('types ', '-__v -users');
+        return await Restaurant.find({name: name, city: city}).populate('types ', '-__v -restaurants -users');
     }
     static async searchByNameAndCityAndPostalCode(name, city, postalCode){
-        const regexName = new RegExp(["^", name, "$"].join(""), "i");
-        const regexCity = new RegExp(["^", city, "$"].join(""), "i");
-        const regexPostalCode = new RegExp(["^", postalCode, "$"].join(""), "i");
-        return await Restaurant.find({name: regexName, city: regexCity, postalCode: regexPostalCode}).populate('types ', '-__v -users');
+        return await Restaurant.find({name: name, city: city, postalCode: postalCode}).populate('types ', '-__v -restaurants -users');
     }
 
     /**
