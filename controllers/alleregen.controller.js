@@ -49,7 +49,6 @@ class AllergenController {
         } else {
             return -1;
         }
-        return undefined;
     }
 
     /**

@@ -116,6 +116,22 @@ class RestaurantListController extends CoreController {
         }
     }
 
+    static async restaurantsListIdNotExist(id){
+        if(!id){
+            // Field is not provided
+            return 0;
+        } else {
+            const restaurant = await RestaurantListDao.findById(id);
+            if(restaurant) {
+                // we found the restaurant in BDD
+                return restaurant;
+            } else {
+                // id not exist in BDD
+                return -1;
+            }
+        }
+    }
+
 }
 
 RestaurantListController.prototype.modelName = 'RestaurantList';

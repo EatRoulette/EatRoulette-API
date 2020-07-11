@@ -2,14 +2,19 @@ const RestaurantDAO = require('../dao').RestaurantDAO;
 const RestaurantListDAO = require('../dao').RestaurantListDao;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
+const CharacteristicDAO = require('../dao').CharacteristicDAO;
+
+const CoreController = require('./core.controller');
 const AllergenController = require('./alleregen.controller');
 const CharacteristicController = require('./characteristic.controller');
 const TypeRestaurantController = require('./type-restaurant.controller');
-const CharacteristicDAO = require('../dao').CharacteristicDAO;
+const FriendsListController = require('./friendsListUser.controller');
+
+
 const RestaurantBean = require('../beans').RestaurantBean;
 const Tools = require('../utils').Util;
 
-class RestaurantController {
+class RestaurantController extends CoreController{
 
     /**
      *
@@ -172,19 +177,56 @@ class RestaurantController {
      * Return a random restaurant by user List
      * @returns {Promise<*>}
      */
-    static async getRandomRestaurantByUserList(listId){
-        const list = await RestaurantListDAO.findById(listId);
+    static async getRandomRestaurantByUserList(friendList,restaurantList){
+        // we push the creator in the friendList for the situation
+        friendList.users.push(friendList.creator);
 
-        if(list && list.restaurants){
-            if (list.restaurants.length > 0){
-                const randomNumber = Tools.getRandomInt(0, list.restaurants.length -1);
-                return list.restaurants[randomNumber];
+        if(restaurantList && restaurantList.restaurants){
+            if (restaurantList.restaurants.length > 0){
+                const situation = await FriendsListController.getFriendsListSituation(friendList);
+                let results = await RestaurantController.calculateScore(situation, restaurantList);
+                for ( let restaurant of results.restaurants){
+                    console.log(restaurant.score)
+                }
+                // TODO :
+                const randomNumber = Tools.getRandomInt(0, restaurantList.restaurants.length -1);
+                return restaurantList.restaurants[randomNumber];
             } else {
                 return -1;
             }
         }
         return undefined;
-    }    /**
+    }
+
+    static async calculateScore(situation, restaurantList){
+
+        let result = {restaurants:[],scores: []};
+        for(const restaurantId of restaurantList.restaurants){
+            const restaurantData = await RestaurantDAO.getById(restaurantId);
+
+            let score = 0;
+            // calculate of restaurant
+            for ( const allergen of situation.allergens){
+                if(RestaurantController.contains(restaurantData.allergens, "name", allergen.name)){
+                    for(let i = 0; i < restaurantData.allergens.length; i++){
+                        if(restaurantData.allergens[i].name === allergen.name){
+                            score -= 10*allergen.rate/100
+                        }
+                    }
+                }
+                else {
+                    score += 10;
+                }
+            }
+            restaurantData.score = score;
+            result.restaurants.push(restaurantData);
+            result.scores.push(score);
+
+        }
+
+        return result;
+    }
+    /**
      * Return a random restaurant by user List and name
      * @returns {Promise<*>}
      */
@@ -454,6 +496,8 @@ class RestaurantController {
             return false;
         }
     }
+
+
 
 }
 
