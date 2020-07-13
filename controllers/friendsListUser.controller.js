@@ -127,6 +127,10 @@ class FriendsListUserController extends CoreController {
         return group.users;
     }
 
+    static async getById(id) {
+        return await FriendsListUserDao.findById(id);
+    }
+
     static manageFriendsListUsers(friendsListUsers) {
         const result = [];
         for (let group of friendsListUsers) {
