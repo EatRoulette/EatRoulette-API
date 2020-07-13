@@ -123,7 +123,7 @@ module.exports = function(app) {
             if(ret === -1){
                 res.status(404).end();
             } else if (ret) {
-                res.status(200).json(ret);
+                res.status(200).json(RestaurantController.manageRestaurant(ret));
             }
         }
         res.status(500).end();
