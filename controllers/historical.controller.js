@@ -53,8 +53,7 @@ class HistoricalController extends CoreController {
                 friendUser && userList.push(friendUser)
             }
         }
-        const me = await UserController.get_user_by_id(userId)
-        me && userList.push(me);
+        userList.push(userId);
 
         Promise.resolve()
             .then(() => {
@@ -66,10 +65,12 @@ class HistoricalController extends CoreController {
                     }).end();
                     throw new Error("You need a put a string Id in users field bod");
                 }
-
-                return Promise.all(promiseAll);
+                return {
+                    restaurants: data.restaurant,
+                    users: userList
+                };
             })
-            .then( ()  => HistoricalController.create(data, { authorizedFields }))
+            .then( (historic)  => HistoricalController.create(historic, { authorizedFields }))
             .then( order => HistoricalController.render(order))
             .then( order => res.status(201).json(order))
             .catch(next);
