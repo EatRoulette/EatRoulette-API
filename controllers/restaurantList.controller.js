@@ -44,8 +44,14 @@ class RestaurantListController extends CoreController {
     static async add_restaurant(req,res,next){
         const {idRestaurant} = req.body;
         const restaurants = await RestaurantListController.getRestaurants(req)
-        restaurants.push(idRestaurant)
-        await RestaurantListController.update(req, res, restaurants)
+        if(restaurants.find(r => r._id.toString() === idRestaurant.toString())){
+            res.status(400).json({
+                message: "Le restaurant existe déjà dans la liste"
+            });
+        }else {
+            restaurants.push(idRestaurant)
+            await RestaurantListController.update(req, res, restaurants)
+        }
     }
 
     static async delete_restaurant(req,res,next){
