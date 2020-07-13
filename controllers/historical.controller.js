@@ -49,8 +49,10 @@ class HistoricalController extends CoreController {
         const userList = []
         if(data.friendList){
             const friendList = await FriendsListUserController.getById(data.friendList)
-            for (const friendUser of friendList.users) {
-                friendUser && userList.push(friendUser)
+            if(friendList){
+                for (const friendUser of friendList.users) {
+                    friendUser && userList.push(friendUser)
+                }
             }
         }
         userList.push(userId);
