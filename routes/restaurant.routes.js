@@ -61,12 +61,12 @@ module.exports = function(app) {
     /**
      * Get random restaurant
      */
-    app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+    app.post('/restaurant/rand', bodyParser.json(), async (req, res) => {
         const randRest = await RestaurantController.getRandomRestaurant(req.body);
 
         if(randRest){
             if(randRest === -1){
-                res.status(204).end();
+                res.status(500).end();
             } else if (randRest){
                 res.status(200).json(randRest);
             }
@@ -77,26 +77,17 @@ module.exports = function(app) {
     /**
      * Get random restaurant roll
      */
-    app.get('/restaurant/roll', AuthMiddleware.isConnected , bodyParser.json() ,async (req, res, next) => {
-        // TODO roll
-        const data = req.body;
+    app.post('/restaurant/roll/:token',  bodyParser.json() ,async (req, res, next) => {
+        const restaurantsListId = req.body.list;
+        const friendListId = req.body.friendList;
+
         const token = req.params.token;
-        const userId = token && await SessionDao.getUserIDByToken(token);
-        let rollRestaurant = null;
-        const friendListId = data.friendsListId;
+        const userId = await SessionDao.getUserIDByToken(token);
 
-        // todo  récupérer tous les restaurants et filtrer en js en fonction d es critères
-        // todo pour les amis on va de toute façon donner un poids au restaurants en fonction des préférences "validés"
-        // chaque filtre aurta un poids , accumulé avec chaque amis
-        // si match avec restau => poids du restau augmente
-        // historique match : poids diminue
-        // on prend le plus grands poids, random sur les 5 premiers
-        // attention name doit dégager => on remplace par ville
-        const restaurantList = await RestaurantListController.restaurantsListIdNotExist(data.restaurantsListId);
-
+        const restaurantList = await RestaurantListController.restaurantsListIdNotExist(restaurantsListId);
         if(restaurantList === 0){
             res.status(400).json({
-                message: "Your field restaurantFields is not provided"
+                message: "Veuillez renseigner une liste de restaurants "
             });
         } else if(restaurantList === -1){
             res.status(400).json({
@@ -104,10 +95,13 @@ module.exports = function(app) {
             })
         }
 
-        const friendsList  = await FriendsListController.friendsListUserNotExist(req,res,next,friendListId);
-
-        rollRestaurant = await RestaurantController.getRandomRestaurantByUserList(friendsList,restaurantList);
-
+        const friendsList  = friendListId ? await FriendsListController.friendsListUserNotExist(req,res,next,friendListId) :
+            {
+                creator: userId,
+                users: [],
+                name: "TemporaryList"
+            };
+        const rollRestaurant = await RestaurantController.getRandomRestaurantByUserList(friendsList,restaurantList);
 
         if(rollRestaurant){
             if(rollRestaurant === -1){

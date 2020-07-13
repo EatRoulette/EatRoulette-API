@@ -319,39 +319,40 @@ class FriendsListUserController extends CoreController {
 
         for (const userId of friendsList.users) {
             const userData = await UserController.get_user_by_id(userId);
-            for (let i = 0; i < userData.allergens.length; i++){
-                if (FriendsListUserController.contains(situation.allergens, "id", '' + userData.allergens[i].id)) {
-                    for (const allergen of situation.allergens){
-                        if(allergen.id === userData.allergens[i].id){
-                            allergen.count++;
+            if(userData){
+                for (let i = 0; i < userData.allergens.length; i++){
+                    if (FriendsListUserController.contains(situation.allergens, "id", '' + userData.allergens[i].id)) {
+                        for (const allergen of situation.allergens){
+                            if(allergen.id === userData.allergens[i].id){
+                                allergen.count++;
+                            }
                         }
+                    } else {
+                        situation.allergens.push({
+                            "id": '' + userData.allergens[i].id,
+                            "name": ''+ userData.allergens[i].name,
+                            "count": 1
+                        });
                     }
-                } else {
-                    situation.allergens.push({
-                        "id": '' + userData.allergens[i].id,
-                        "name": ''+ userData.allergens[i].name,
-                        "count": 1
-                    });
                 }
-            }
 
-            for (let i = 0; i < userData.characteristics.length; i++){
-                if (FriendsListUserController.contains(situation.characteristics, "id", '' + userData.characteristics[i].id)) {
-                    for (const characteristics of situation.characteristics){
-                        if(characteristics.id === userData.characteristics[i].id){
-                            characteristics.count++;
+                for (let i = 0; i < userData.characteristics.length; i++){
+                    if (FriendsListUserController.contains(situation.characteristics, "id", '' + userData.characteristics[i].id)) {
+                        for (const characteristics of situation.characteristics){
+                            if(characteristics.id === userData.characteristics[i].id){
+                                characteristics.count++;
+                            }
                         }
+                    } else {
+                        situation.characteristics.push({
+                            "id": '' + userData.characteristics[i].id,
+                            "name": ''+ userData.characteristics[i].name,
+                            "count": 1
+                        });
                     }
-                } else {
-                    situation.characteristics.push({
-                        "id": '' + userData.characteristics[i].id,
-                        "name": ''+ userData.characteristics[i].name,
-                        "count": 1
-                    });
                 }
             }
         }
-
         situation.characteristics.forEach(element => {
             if(friendsList.users.length !== 0){
                 element.rate = element.count/friendsList.users.length*100;

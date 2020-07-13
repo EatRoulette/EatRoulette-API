@@ -171,7 +171,7 @@ class RestaurantController extends CoreController{
                 return -1;
             }
         }
-        return undefined;
+        return -1;
     }
     /**
      * Return a random restaurant by user List
@@ -184,15 +184,18 @@ class RestaurantController extends CoreController{
         if(restaurantList && restaurantList.restaurants){
             if (restaurantList.restaurants.length > 0){
                 const situation = await FriendsListController.getFriendsListSituation(friendList);
-                let results = await RestaurantController.calculateScore(situation, restaurantList);
-                let limit = results.length/3;
-                if(results.length <= 2){
+                const restaurantsWithScore = await RestaurantController.calculateScore(situation, restaurantList);
+                let limit = restaurantsWithScore.length/3;
+                if(restaurantsWithScore.length <= 2){
                     limit = 1;
                 }
-                results = await RestaurantController.sortOnly(results, limit);
+                const results = await RestaurantController.sortOnly(restaurantsWithScore, limit);
 
                 const randomNumber = Tools.getRandomInt(0, results.length -1);
-                return {restaurant:results[randomNumber], score:results[randomNumber].score};
+
+                const restaurantResult = this.manageRestaurant(results[randomNumber])
+
+                return {restaurant:restaurantResult, score:results[randomNumber].score};
             } else {
                 return -1;
             }

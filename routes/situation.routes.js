@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 
 module.exports = function(app) {
     app.get('/situation/:token', async (req, res) => {
+
         const userId = await UserController.get_user_id_by_token(req.params.token)
         const user = await UserController.get_user_by_id(userId)
 
