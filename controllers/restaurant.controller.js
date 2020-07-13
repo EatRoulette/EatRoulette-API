@@ -144,7 +144,9 @@ class RestaurantController extends CoreController{
     }
 
     static manageRestaurant(restaurant){
-        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address, restaurant.city);
+        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types,
+            restaurant.address, restaurant.city, restaurant.website, restaurant.postalCode,
+            restaurant.characteristics, restaurant.allergens);
     }
 
     static manageRestaurants(restaurants){
