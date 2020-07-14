@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 
 const characteristicSchema = new Schema({
     name: String,
-    // TODO duplicate with characteristic into user
     restaurants: [{
         type: Schema.Types.ObjectId,
         ref: 'Restaurant'
