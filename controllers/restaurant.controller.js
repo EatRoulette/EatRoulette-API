@@ -45,7 +45,7 @@ class RestaurantController extends CoreController{
         const restaurant = await this.buildRestaurantFromBean(req);
         const ticketToCreate = {
             status: 'created',
-            title: 'Creation of restaurant ' + restaurant.name,
+            title: 'Création du restaurant ' + restaurant.name,
             type: 'newRestaurant',
             author: userId
         }
