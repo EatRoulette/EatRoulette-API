@@ -38,7 +38,7 @@ class HistoricalController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async create_history(req, res, next){
+    static async createHistory(req, res, next){
         let data = req.body;
         const authorizedFields = [
             'users',
@@ -79,20 +79,16 @@ class HistoricalController extends CoreController {
     }
 
     /**
-     * create a ticket with status todo
+     * render stats about a user
      * @param req
      * @param res
      * @param next
      * @returns {Promise<void>}
      */
-    static async render_stats_about_a_user(req, res, next){
+    static async renderStatsAboutAnUser(req, res, next){
         let idUser = req.params.idUser;
-
         await UserController.userNotExist(req,res,next,idUser);
         let allStats = await HistoricalController.createStats(idUser);
-
-
-
         await res.status(201).json({allStats});
     }
 

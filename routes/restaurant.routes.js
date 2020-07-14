@@ -8,10 +8,8 @@ const FriendsListController = require('../controllers').FriendsListUserControlle
 
 module.exports = function(app) {
 
-    /**
-     * get Random Restaurant from an list of restaurants sent by the user
-     */
-    app.get('/restaurant/rand/:idListRestaurant', bodyParser.json(), RestaurantController.getRandomList);
+    // TODO attention middleware
+
     /**
      * Create restaurant
      */
@@ -64,9 +62,6 @@ module.exports = function(app) {
     app.post('/restaurant/rand', bodyParser.json(), async (req, res) => {
         const filters = req.body;
         const randRest = await RestaurantController.getRandomRestaurant(filters);
-        console.log("randRest")
-        console.log(randRest)
-
         if(randRest){
             res.status(200).json({restaurant : RestaurantController.manageRestaurant(randRest)});
         }else{
@@ -103,6 +98,7 @@ module.exports = function(app) {
                 users: [],
                 name: "TemporaryList"
             };
+
         const rollRestaurant = await RestaurantController.getRandomRestaurantByUserList(friendsList,restaurantList);
 
         if(rollRestaurant){

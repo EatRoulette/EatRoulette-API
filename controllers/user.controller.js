@@ -115,7 +115,7 @@ class UserController extends CoreController{
         }
     }
 
-    static async delete_user(req,res,next){
+    static async deleteUser(req,res,next){
         const id = req.params.userId;
         Promise.resolve()
             .then(() =>  UserController.userNotExist(req,res,next,id))
@@ -130,18 +130,18 @@ class UserController extends CoreController{
             .catch(next);
     }
 
-    static async modif_user(req, res, next){
+    static async updateUser(req, res, next){
         const token = req.params.token;
         let data = req.body;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
-            const user = await UserController.get_user_by_id(userId);
+            const user = await UserController.getUserById(userId);
             if(user){
                 let userUpdated = null;
                 // check if isNewEmail => already exists
                 const email = data.email;
                 if(email !== user.email){
-                    const exists = UserController.get_user_by_email(email)
+                    const exists = UserController.getUserByEmail(email)
                     if(exists){
                         res.status(500).end();
                     }else{
@@ -175,10 +175,10 @@ class UserController extends CoreController{
             });
     }
 
-    static async get_user(req,res){
+    static async getUser(req,res){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
-        const user = await UserController.get_user_by_id(userId);
+        const user = await UserController.getUserById(userId);
         if(user){
             res.status(200).json(user);
         } else {
@@ -213,7 +213,7 @@ class UserController extends CoreController{
         return results
     }
 
-    static async get_user_by_id(userId){
+    static async getUserById(userId){
         const userDao = await UserDao.findById(userId);
         if(userDao){
             const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,
@@ -228,7 +228,7 @@ class UserController extends CoreController{
     }
 
 
-    static async get_user_by_email(email){
+    static async getUserByEmail(email){
         const userDao = await UserDao.findByEmail(email);
         return !!userDao;
     }
@@ -237,7 +237,7 @@ class UserController extends CoreController{
         return await UserDao.updateUser(userUpdate, userId);
     }
 
-    static async get_user_id_by_token(token){
+    static async getUserIdByToken(token){
         return await SessionDao.getUserIDByToken(token);
     }
 

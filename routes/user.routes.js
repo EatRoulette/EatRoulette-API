@@ -12,39 +12,39 @@ module.exports = function(app) {
      * Menu management
      */
 
-    app.post('/gotoRestaurant/user/:token', bodyParser.json(), HistoricalController.create_history);
+    app.post('/gotoRestaurant/user/:token', bodyParser.json(), HistoricalController.createHistory);
 
-    app.get('/tracking/restaurant/user/:idUser', HistoricalController.render_stats_about_a_user);
+    app.get('/tracking/restaurant/user/:idUser', HistoricalController.renderStatsAboutAnUser);
 
-    app.post('/manage/create/friendsListUser', bodyParser.json(), FriendsListUserController.create_friendsListUser);
+    app.post('/manage/create/friendsListUser', bodyParser.json(), FriendsListUserController.createFriendsListUser);
 
-    app.put('/manage/friendsListUser/:friendsListUserId', bodyParser.json() , FriendsListUserController.modif_friendsListUser);
+    app.put('/manage/friendsListUser/:friendsListUserId', bodyParser.json() , FriendsListUserController.updateFriendsListUser);
 
-    app.delete('/manage/friendsListUser/:friendsListUserId', FriendsListUserController.delete_friendsListUser);
+    app.delete('/manage/friendsListUser/:friendsListUserId', FriendsListUserController.deleteFriendsListUser);
 
     app.put('/manage/friendsListUser/products/:friendsListUserId', bodyParser.json() , FriendsListUserController.add_users);
 
-    app.delete('/manage/friendsListUser/products/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser);
+    app.delete('/manage/friendsListUser/products/:friendsListUserId', bodyParser.json(), FriendsListUserController.deleteFriendsListUser);
 
-    app.get('/friendsListUsers', FriendsListUserController.friendsListUsers_get_all);
-    app.get('/myFriendsListUsers/:token', FriendsListUserController.friendsListUsers_get_all_for_user);
-    app.post('/myFriendsListUsers/add/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_add_user);
-    app.post('/myFriendsListUsers/new/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_create);
-    app.post('/myFriendsListUsers/delete/:token', bodyParser.json(), FriendsListUserController.friendsListUsers_delete_user);
-    app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.get_friendsListUser_by_id);
-    app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.delete_friendsListUser_user);
-
-
-    app.get('/myRestaurantList/:token', RestaurantListController.get_all_for_user);
-    app.post('/myRestaurantList/new/:token', bodyParser.json(), RestaurantListController.create_for_user);
-    app.post('/myRestaurantList/add/:token', bodyParser.json(), RestaurantListController.add_restaurant);
-    app.post('/myRestaurantList/delete/:token', bodyParser.json(), RestaurantListController.delete_restaurant);
-    app.delete('/myRestaurantList/:id', RestaurantListController.delete_list);
-
-    app.get('/user/:token', UserController.get_user);
+    app.get('/friendsListUsers', FriendsListUserController.getAllFriendsListUsers);
+    app.get('/myFriendsListUsers/:token', FriendsListUserController.getAllFriendsListUsersForUser);
+    app.post('/myFriendsListUsers/add/:token', bodyParser.json(), FriendsListUserController.friendsListUsersAddUser);
+    app.post('/myFriendsListUsers/new/:token', bodyParser.json(), FriendsListUserController.friendsListUsersCreate);
+    app.post('/myFriendsListUsers/delete/:token', bodyParser.json(), FriendsListUserController.friendsListUsersDeleteUser);
+    app.get('/friendsListUser/:friendsListUserId', FriendsListUserController.getFriendsListUserById);
+    app.delete('/manage/friendsListUser/users/:friendsListUserId', bodyParser.json(), FriendsListUserController.deleteFriendsListUserForUser);
 
 
-    app.post('/user/update/:token', bodyParser.json(), UserController.modif_user);
+    app.get('/myRestaurantList/:token', RestaurantListController.getAllForUser);
+    app.post('/myRestaurantList/new/:token', bodyParser.json(), RestaurantListController.createForUser);
+    app.post('/myRestaurantList/add/:token', bodyParser.json(), RestaurantListController.addRestaurant);
+    app.post('/myRestaurantList/delete/:token', bodyParser.json(), RestaurantListController.deleteRestaurant);
+    app.delete('/myRestaurantList/:id', RestaurantListController.deleteList);
+
+    app.get('/user/:token', UserController.getUser);
+
+
+    app.post('/user/update/:token', bodyParser.json(), UserController.updateUser);
 
     app.post('/user/search/:token', bodyParser.json(), async (req, res) => {
         // UserController.search_user

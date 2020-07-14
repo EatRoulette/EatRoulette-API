@@ -19,12 +19,6 @@ const Tools = require('../utils').Util;
 class RestaurantController extends CoreController{
 
     /**
-     *
-     */
-    static getRandomList(req,res,next){
-
-    }
-    /**
      * Save the restaurant
      * @param req
      * @returns {Promise<void>}
@@ -173,6 +167,7 @@ class RestaurantController extends CoreController{
     static isPresent(item){
         return item && item !== "";
     }
+
     static arePresent(items){
         return items && items.length > 0;
     }
@@ -261,8 +256,6 @@ class RestaurantController extends CoreController{
             && RestaurantController.arePresent(types)){
             allRestaurants = await RestaurantDAO.getByTypes(allergens)
         }
-        console.log("allRestaurants")
-        console.log(allRestaurants)
         if (allRestaurants && allRestaurants.length > 0){
             const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
             return allRestaurants[randomNumber];
@@ -270,6 +263,7 @@ class RestaurantController extends CoreController{
             return null;
         }
     }
+
     /**
      * Return a random restaurant by user List
      * @returns {Promise<*>}
@@ -299,8 +293,6 @@ class RestaurantController extends CoreController{
         }
         return undefined;
     }
-
-
 
     static async sortOnly(results, limit){
         let resultSorted = [];
@@ -517,7 +509,6 @@ class RestaurantController extends CoreController{
         }
     }
 
-
     /**
      * Check and build the restaurant
      * @param req
@@ -549,6 +540,7 @@ class RestaurantController extends CoreController{
         }
         return characteristics;
     }
+
     static async getTypesFromRequest(selectedTypes){
         const types = []
         for(const type of selectedTypes){
@@ -563,6 +555,7 @@ class RestaurantController extends CoreController{
     static async getType(type){
         return await TypeRestaurantController.getTypeById(type.id)
     }
+
     static async getCharacteristic(characteristic){
         return await CharacteristicController.getCharacteristicById(characteristic.id)
     }
@@ -618,8 +611,6 @@ class RestaurantController extends CoreController{
             return false;
         }
     }
-
-
 
 }
 

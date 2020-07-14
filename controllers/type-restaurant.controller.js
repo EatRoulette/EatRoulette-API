@@ -56,7 +56,6 @@ class TypeRestaurantController {
         } else {
             return -1;
         }
-        return undefined;
     }
 
     /**
@@ -96,8 +95,7 @@ class TypeRestaurantController {
         const restaurant = await TypeRestaurantDAO.getById(id);
 
         if(restaurant) {
-            const isDeleted = await TypeRestaurantDAO.deleteById(id);
-            return isDeleted
+            return await TypeRestaurantDAO.deleteById(id);
         } else {
             return -1; //404 not found
         }
@@ -110,8 +108,7 @@ class TypeRestaurantController {
      */
     static async buildType(req){
         if (req.body.name) {
-            const type = { name: req.body.name };
-            return type;
+            return { name: req.body.name };
         } else {
             return false;
         }

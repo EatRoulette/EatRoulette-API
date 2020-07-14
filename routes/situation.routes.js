@@ -7,8 +7,8 @@ const bodyParser = require('body-parser');
 module.exports = function(app) {
     app.get('/situation/:token', async (req, res) => {
 
-        const userId = await UserController.get_user_id_by_token(req.params.token)
-        const user = await UserController.get_user_by_id(userId)
+        const userId = await UserController.getUserIdByToken(req.params.token)
+        const user = await UserController.getUserById(userId)
 
         const situationBean = new SituationBean();
         if(user){
@@ -29,8 +29,8 @@ module.exports = function(app) {
         }
     });
     app.post('/situation/:token', bodyParser.json(), async (req, res) => {
-        const userId = await UserController.get_user_id_by_token(req.params.token)
-        const userToUpdate = await UserController.get_user_by_id(userId)
+        const userId = await UserController.getUserIdByToken(req.params.token)
+        const userToUpdate = await UserController.getUserById(userId)
         const response = req.body
         if(userToUpdate){
             userToUpdate.characteristics = [];
