@@ -62,16 +62,18 @@ module.exports = function(app) {
      * Get random restaurant
      */
     app.post('/restaurant/rand', bodyParser.json(), async (req, res) => {
-        const randRest = await RestaurantController.getRandomRestaurant(req.body);
+        const filters = req.body;
+        const randRest = await RestaurantController.getRandomRestaurant(filters);
+        console.log("randRest")
+        console.log(randRest)
 
         if(randRest){
-            if(randRest === -1){
-                res.status(500).end();
-            } else if (randRest){
-                res.status(200).json(randRest);
-            }
+            res.status(200).json({restaurant : RestaurantController.manageRestaurant(randRest)});
+        }else{
+            res.status(200).json({restaurant : null});
         }
         res.status(500).end();
+
     });
 
     /**

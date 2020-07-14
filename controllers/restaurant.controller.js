@@ -159,21 +159,105 @@ class RestaurantController extends CoreController{
         return result;
     }
 
+    static isPresent(item){
+        return item && item !== "";
+    }
+    static arePresent(items){
+        return items && items.length > 0;
+    }
+
     /**
      * Return a random restaurant
      * @returns {Promise<*>}
      */
-    static async getRandomRestaurant(json){
-        const allRestaurants = await RestaurantDAO.getByElement(json);
-        if(allRestaurants){
-            if (allRestaurants.length > 0){
-                const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
-                return allRestaurants[randomNumber];
-            } else {
-                return -1;
-            }
+    static async getRandomRestaurant(filters){
+        const { city, characteristics, allergens, types } = filters
+        let allRestaurants
+        if(RestaurantController.isPresent(city) &&
+                RestaurantController.arePresent(characteristics)
+                && RestaurantController.arePresent(allergens)
+                && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndAllergensAndTypes(city, characteristics, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+                RestaurantController.arePresent(characteristics)
+                && !RestaurantController.arePresent(types)
+                && RestaurantController.arePresent(allergens)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndAllergens(city, characteristics, allergens)
+        }else if(RestaurantController.isPresent(city)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types) &&
+            RestaurantController.arePresent(characteristics)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristics(city, characteristics)
+        }else if(RestaurantController.isPresent(city)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)
+            && !RestaurantController.arePresent(characteristics)){
+            allRestaurants = await RestaurantDAO.getByCity(city)
+        }else if(
+            !RestaurantController.isPresent(city)
+            && RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndAllergensAndTypes(characteristics, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndTypes(city, characteristics, types)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndAllergensAndTypes(city, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndAllergens(city, allergens)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndTypes(city, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndTypes(characteristics, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndAllergens(characteristics, allergens)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByAllergensAndTypes(allergens, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristics(characteristics)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByAllergens(allergens)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByTypes(allergens)
         }
-        return -1;
+        console.log("allRestaurants")
+        console.log(allRestaurants)
+        if (allRestaurants && allRestaurants.length > 0){
+            const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
+            return allRestaurants[randomNumber];
+        } else {
+            return null;
+        }
     }
     /**
      * Return a random restaurant by user List

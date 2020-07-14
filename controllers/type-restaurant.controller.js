@@ -1,4 +1,5 @@
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
+const TypeBean = require('../beans/type.bean');
 
 class TypeRestaurantController {
 
@@ -31,9 +32,15 @@ class TypeRestaurantController {
         const allTypes = await TypeRestaurantDAO.getAll();
 
         if(allTypes){
-            return allTypes;
+            return TypeRestaurantController.manageTypes(allTypes);
         }
         return undefined;
+    }
+
+    static manageTypes(types){
+        const result = []
+        types.forEach(t => result.push(new TypeBean(t._id, t.name)))
+        return result;
     }
 
     /**
