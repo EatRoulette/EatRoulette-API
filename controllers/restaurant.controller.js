@@ -3,11 +3,13 @@ const RestaurantListDAO = require('../dao').RestaurantListDao;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
 const CharacteristicDAO = require('../dao').CharacteristicDAO;
+const SessionDao = require('../dao').SessionDAO;
 
 const CoreController = require('./core.controller');
 const AllergenController = require('./alleregen.controller');
 const CharacteristicController = require('./characteristic.controller');
 const TypeRestaurantController = require('./type-restaurant.controller');
+const TicketController = require('./ticket.controller');
 const FriendsListController = require('./friendsListUser.controller');
 
 
@@ -44,8 +46,17 @@ class RestaurantController extends CoreController{
      * @returns {Promise<void>}
      */
     static async addRestaurant(req){
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
         const restaurant = await this.buildRestaurantFromBean(req);
-        if(restaurant){
+        const ticketToCreate = {
+            status: 'created',
+            title: 'Creation of restaurant ' + restaurant.name,
+            type: 'newRestaurant',
+            author: userId
+        }
+        const ticketCreated = await TicketController.create(ticketToCreate)
+        if(restaurant && ticketCreated){
             return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
             return -1; //Bad request
@@ -500,8 +511,7 @@ class RestaurantController extends CoreController{
         const restaurant = await RestaurantDAO.getById(id);
 
         if(restaurant) {
-            const isDeleted = await RestaurantDAO.deleteById(id);
-            return isDeleted
+            return await RestaurantDAO.deleteById(id);
         } else {
             return -1; //404 not found
         }
@@ -518,21 +528,20 @@ class RestaurantController extends CoreController{
         if (req.body.name && req.body.site && req.body.address && req.body.city &&
             req.body.postalCode && req.body.dep && req.body.types && req.body._idSituation ) {
 
-            const restaurant = {
+            return {
                 name: req.body.name, site: req.body.site, address: req.body.address,
                 city: req.body.city, postalCode: req.body.postalCode, dep: req.body.dep, types: req.body.types,
                 _idSituation: req.body._idSituation
             }
-            return restaurant;
 
         } else {
             return false;
         }
     }
 
-    static async getCharacteristics(req ){
+    static async getCharacteristics(selectedCharacteristics){
         const characteristics = []
-        for(const characteristic of req.body.characteristics){
+        for(const characteristic of selectedCharacteristics){
             const newCharacteristic = await RestaurantController.getCharacteristic(characteristic)
             if(newCharacteristic !== -1){
                 characteristics.push(newCharacteristic)
@@ -540,9 +549,9 @@ class RestaurantController extends CoreController{
         }
         return characteristics;
     }
-    static async getTypesFromRequest(req ){
+    static async getTypesFromRequest(selectedTypes){
         const types = []
-        for(const type of req.body.types){
+        for(const type of selectedTypes){
             const newType = await RestaurantController.getType(type)
             if(newType !== -1){
                 types.push(newType)
@@ -562,15 +571,15 @@ class RestaurantController extends CoreController{
         return await AllergenController.getAllergenById(allergen.id)
     }
 
-    static async getAllergens(req ){
-        const allergens = []
-        for(const allergen of req.body.allergens){
+    static async getAllergens(allergens ){
+        const allergensResult = []
+        for(const allergen of allergens){
             const newAllergen = await RestaurantController.getAllergen(allergen)
             if(newAllergen !== -1){
-                allergens.push(newAllergen)
+                allergensResult.push(newAllergen)
             }
         }
-        return allergens;
+        return allergensResult;
     }
 
     static async buildRestaurantFromBean(req){
@@ -581,13 +590,16 @@ class RestaurantController extends CoreController{
         if (req.body.name && req.body.address && req.body.city &&
             req.body.postalCode ) {
             if(req.body.allergens){
-                allergens = await RestaurantController.getAllergens(req)
+                const selectedAllergens = req.body.allergens.filter(a => a.selected)
+                allergens = await RestaurantController.getAllergens(selectedAllergens)
             }
             if(req.body.characteristics){
-                characteristics = await RestaurantController.getCharacteristics(req)
+                const selectedCharacteristics = req.body.characteristics.filter(c => c.selected)
+                characteristics = await RestaurantController.getCharacteristics(selectedCharacteristics)
             }
             if(req.body.types){
-                types = await RestaurantController.getTypesFromRequest(req)
+                const selectedTypes = req.body.types.filter(t => t.selected)
+                types = await RestaurantController.getTypesFromRequest(selectedTypes)
             }
             return {
                 name: req.body.name,

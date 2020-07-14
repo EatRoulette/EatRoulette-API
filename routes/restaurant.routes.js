@@ -30,8 +30,8 @@ module.exports = function(app) {
     /**
      * Add restaurant from front
      */
-    app.post('/restaurant/add', bodyParser.json(), async (req, res) => {
-        const ret = await RestaurantController.addRestaurant(req); // TODO manage types
+    app.post('/restaurant/add/:token', bodyParser.json(), async (req, res) => {
+        const ret = await RestaurantController.addRestaurant(req);
 
         if(ret === -1){
             res.status(400).end();

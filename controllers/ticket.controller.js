@@ -40,7 +40,7 @@ class TicketController extends CoreController {
      */
     static async create_ticket(req, res, next){
         let data = req.body;
-        data.status = 'todo';
+        data.status = 'created';
 
         const authorizedFields = [
             'title',

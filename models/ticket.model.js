@@ -21,7 +21,7 @@ const TicketSchema = new Schema({
     type: {
         type: String,
         default: 'request',
-        enum: ['bug', 'request'],
+        enum: ['bug', 'request', 'newRestaurant'],
     },
     emergency: { type: Number, default: 0 }, // relevant for Java back office
     users: {
