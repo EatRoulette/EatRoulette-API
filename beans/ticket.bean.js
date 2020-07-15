@@ -7,6 +7,8 @@ class TicketBean{
     comments;
     created_at;
 
+    //TODO author
+
     constructor(id, title, message, status, type, comments, created_at) {
         this.id = id;
         this.title = title;

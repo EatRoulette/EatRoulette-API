@@ -87,7 +87,7 @@ class TicketController extends CoreController {
         }
     }
 
-    static manageTicket(ticket, userId){
+    static manageTicket(ticket, userId = null){
         let status = "";
         let type = "";
         switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
@@ -170,6 +170,26 @@ class TicketController extends CoreController {
                 message: `Une erreur est survenue`
             })
         }
+    }
+
+    /**
+     * get all tickets
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async getAllTickets(req, res, next){
+            const tickets = await TicketDao.getAll();
+            if(tickets){
+                const ticketsBean = []
+                tickets.forEach(t => ticketsBean.push(TicketController.manageTicket(t)))
+                res.status(200).json(ticketsBean)
+            }else{
+                res.status(500).json({
+                    message: 'Aucun tickets'
+                })
+            }
     }
 
     /**
