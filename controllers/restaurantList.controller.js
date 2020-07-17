@@ -8,7 +8,7 @@ const RestaurantListModel = require('../models').RestaurantList;
 
 class RestaurantListController extends CoreController {
 
-    static async get_all_for_user(req, res, next) {
+    static async getAllForUser(req, res, next) {
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
@@ -22,7 +22,7 @@ class RestaurantListController extends CoreController {
         }
     };
 
-    static async create_for_user(req,res,next){
+    static async createForUser(req,res,next){
         const {name} = req.body; // name
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token); // creator
@@ -41,21 +41,27 @@ class RestaurantListController extends CoreController {
         }
     }
 
-    static async add_restaurant(req,res,next){
+    static async addRestaurant(req,res,next){
         const {idRestaurant} = req.body;
         const restaurants = await RestaurantListController.getRestaurants(req)
-        restaurants.push(idRestaurant)
-        await RestaurantListController.update(req, res, restaurants)
+        if(restaurants.find(r => r._id.toString() === idRestaurant.toString())){
+            res.status(400).json({
+                message: "Le restaurant existe déjà dans la liste"
+            });
+        }else {
+            restaurants.push(idRestaurant)
+            await RestaurantListController.update(req, res, restaurants)
+        }
     }
 
-    static async delete_restaurant(req,res,next){
+    static async deleteRestaurant(req,res,next){
         const {idRestaurant} = req.body;
         const restaurants = await RestaurantListController.getRestaurants(req)
         restaurants.remove(idRestaurant)
         await  RestaurantListController.update(req, res, restaurants)
     }
 
-    static async delete_list(req,res,next){
+    static async deleteList(req,res,next){
         const ret = await RestaurantListController.deleteById(req.params.id);
 
         if(ret === -1) {

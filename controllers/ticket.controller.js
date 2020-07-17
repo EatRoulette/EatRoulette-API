@@ -32,15 +32,15 @@ class TicketController extends CoreController {
     }
 
     /**
-     * create a ticket with status todo
+     * create a ticket with status created
      * @param req
      * @param res
      * @param next
      * @returns {Promise<void>}
      */
-    static async create_ticket(req, res, next){
+    static async createTicket(req, res, next){
         let data = req.body;
-        data.status = 'todo';
+        data.status = 'created';
 
         const authorizedFields = [
             'title',
@@ -64,7 +64,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async support_request(req, res, next){
+    static async supportRequest(req, res, next){
         const data = req.body;
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
@@ -127,7 +127,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async get_tickets_for_user(req, res, next){
+    static async getTicketsForUser(req, res, next){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
@@ -151,7 +151,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async get_ticket_for_user(req, res, next){
+    static async getTicketForUser(req, res, next){
         const token = req.params.token;
         const idTicket = req.params.id;
         const userId = await SessionDao.getUserIDByToken(token);
@@ -179,7 +179,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async delete_comment_of_ticket(req, res, next) {
+    static async deleteCommentOfTicket(req, res, next) {
     const id = req.params.id;
     const commentId = req.params.comment;
 
@@ -201,7 +201,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async add_comment_to_ticket(req, res, next){
+    static async addCommentToTicket(req, res, next){
     const id = req.params.id;
     const author = req.params.idAuthor;
     const { message } = req.body;
@@ -224,7 +224,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async add_comment_to_ticket_from_front(req, res, next){
+    static async addCommentToTicketFromFront(req, res, next){
     const token = req.params.token;
     const { message, idTicket } = req.body;
     const userId = await SessionDao.getUserIDByToken(token);

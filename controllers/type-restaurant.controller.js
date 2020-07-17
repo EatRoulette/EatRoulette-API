@@ -1,4 +1,5 @@
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
+const TypeBean = require('../beans/type.bean');
 
 class TypeRestaurantController {
 
@@ -31,9 +32,15 @@ class TypeRestaurantController {
         const allTypes = await TypeRestaurantDAO.getAll();
 
         if(allTypes){
-            return allTypes;
+            return TypeRestaurantController.manageTypes(allTypes);
         }
         return undefined;
+    }
+
+    static manageTypes(types){
+        const result = []
+        types.forEach(t => result.push(new TypeBean(t._id, t.name)))
+        return result;
     }
 
     /**
@@ -49,7 +56,6 @@ class TypeRestaurantController {
         } else {
             return -1;
         }
-        return undefined;
     }
 
     /**
@@ -89,8 +95,7 @@ class TypeRestaurantController {
         const restaurant = await TypeRestaurantDAO.getById(id);
 
         if(restaurant) {
-            const isDeleted = await TypeRestaurantDAO.deleteById(id);
-            return isDeleted
+            return await TypeRestaurantDAO.deleteById(id);
         } else {
             return -1; //404 not found
         }
@@ -103,8 +108,7 @@ class TypeRestaurantController {
      */
     static async buildType(req){
         if (req.body.name) {
-            const type = { name: req.body.name };
-            return type;
+            return { name: req.body.name };
         } else {
             return false;
         }

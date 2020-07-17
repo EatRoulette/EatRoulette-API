@@ -17,7 +17,7 @@ class FriendsListUserController extends CoreController {
         return super.render(list, {...options, populates});
     }
 
-    static async create_friendsListUser(req, res, next) {
+    static async createFriendsListUser(req, res, next) {
         let data = req.body;
         const authorizedFields = ['name', 'users', 'creator'];
         Promise.resolve().then(() => {
@@ -56,7 +56,7 @@ class FriendsListUserController extends CoreController {
             .catch(next);
     };
 
-    static async friendsListUsers_get_all(req, res, next) {
+    static async getAllFriendsListUsers(req, res, next) {
         const order = req.query.order || 'create_at';
         Promise.resolve()
             .then(() => FriendsListUserController.find({}))
@@ -65,7 +65,7 @@ class FriendsListUserController extends CoreController {
             .catch(next);
     };
 
-    static async friendsListUsers_get_all_for_user(req, res, next) {
+    static async getAllFriendsListUsersForUser(req, res, next) {
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
         if (userId) {
@@ -78,14 +78,14 @@ class FriendsListUserController extends CoreController {
         }
     };
 
-    static async friendsListUsers_add_user(req, res, next) {
+    static async friendsListUsersAddUser(req, res, next) {
         const {idFriend} = req.body;
         const users = await FriendsListUserController.getUsers(req)
         users.push(idFriend)
         await FriendsListUserController.update(req, res, users)
     }
 
-    static async friendsListUsers_create(req, res, next) {
+    static async friendsListUsersCreate(req, res, next) {
         const {name} = req.body; // name
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token); // creator
@@ -104,7 +104,7 @@ class FriendsListUserController extends CoreController {
         }
     }
 
-    static async friendsListUsers_delete_user(req, res, next) {
+    static async friendsListUsersDeleteUser(req, res, next) {
         const {idFriend} = req.body;
         const users = await FriendsListUserController.getUsers(req)
         users.remove(idFriend)
@@ -127,6 +127,10 @@ class FriendsListUserController extends CoreController {
         return group.users;
     }
 
+    static async getById(id) {
+        return await FriendsListUserDao.findById(id);
+    }
+
     static manageFriendsListUsers(friendsListUsers) {
         const result = [];
         for (let group of friendsListUsers) {
@@ -140,7 +144,7 @@ class FriendsListUserController extends CoreController {
 
     }
 
-    static async get_friendsListUser_by_id(req, res, next) {
+    static async getFriendsListUserById(req, res, next) {
         const id = req.params.friendsListUserId;
         Promise.resolve()
             .then(() => FriendsListUserController.friendsListUserNotExist(req, res, next, id))
@@ -168,7 +172,7 @@ class FriendsListUserController extends CoreController {
             });
     };
 
-    static async modif_friendsListUser(req, res, next) {
+    static async updateFriendsListUser(req, res, next) {
         const id = req.params.friendsListUserId;
         let data = req.body;
         Promise.resolve().then(() => {
@@ -197,7 +201,7 @@ class FriendsListUserController extends CoreController {
             .catch(next);
     }
 
-    static async delete_friendsListUser(req, res, next) {
+    static async deleteFriendsListUser(req, res, next) {
         const id = req.params.friendsListUserId;
         Promise.resolve()
             .then(() => FriendsListUserController.friendsListUserNotExist(req, res, next, id))
@@ -212,10 +216,9 @@ class FriendsListUserController extends CoreController {
             .catch(next);
     }
 
-    static async delete_friendsListUser_user(req, res, next) {
+    static async deleteFriendsListUserForUser(req, res, next) {
         const id = req.params.friendsListUserId;
         let data = req.body;
-        let friendsListUser = null;
         const promiseAll = [];
         Promise.resolve().then(() => {
 
@@ -318,40 +321,41 @@ class FriendsListUserController extends CoreController {
         situation.characteristics = [];
 
         for (const userId of friendsList.users) {
-            const userData = await UserController.get_user_by_id(userId);
-            for (let i = 0; i < userData.allergens.length; i++){
-                if (FriendsListUserController.contains(situation.allergens, "id", '' + userData.allergens[i].id)) {
-                    for (const allergen of situation.allergens){
-                        if(allergen.id === userData.allergens[i].id){
-                            allergen.count++;
+            const userData = await UserController.getUserById(userId);
+            if(userData){
+                for (let i = 0; i < userData.allergens.length; i++){
+                    if (FriendsListUserController.contains(situation.allergens, "id", '' + userData.allergens[i].id)) {
+                        for (const allergen of situation.allergens){
+                            if(allergen.id === userData.allergens[i].id){
+                                allergen.count++;
+                            }
                         }
+                    } else {
+                        situation.allergens.push({
+                            "id": '' + userData.allergens[i].id,
+                            "name": ''+ userData.allergens[i].name,
+                            "count": 1
+                        });
                     }
-                } else {
-                    situation.allergens.push({
-                        "id": '' + userData.allergens[i].id,
-                        "name": ''+ userData.allergens[i].name,
-                        "count": 1
-                    });
                 }
-            }
 
-            for (let i = 0; i < userData.characteristics.length; i++){
-                if (FriendsListUserController.contains(situation.characteristics, "id", '' + userData.characteristics[i].id)) {
-                    for (const characteristics of situation.characteristics){
-                        if(characteristics.id === userData.characteristics[i].id){
-                            characteristics.count++;
+                for (let i = 0; i < userData.characteristics.length; i++){
+                    if (FriendsListUserController.contains(situation.characteristics, "id", '' + userData.characteristics[i].id)) {
+                        for (const characteristics of situation.characteristics){
+                            if(characteristics.id === userData.characteristics[i].id){
+                                characteristics.count++;
+                            }
                         }
+                    } else {
+                        situation.characteristics.push({
+                            "id": '' + userData.characteristics[i].id,
+                            "name": ''+ userData.characteristics[i].name,
+                            "count": 1
+                        });
                     }
-                } else {
-                    situation.characteristics.push({
-                        "id": '' + userData.characteristics[i].id,
-                        "name": ''+ userData.characteristics[i].name,
-                        "count": 1
-                    });
                 }
             }
         }
-
         situation.characteristics.forEach(element => {
             if(friendsList.users.length !== 0){
                 element.rate = element.count/friendsList.users.length*100;

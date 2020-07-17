@@ -2,6 +2,7 @@ const TicketModel = require('../models').Ticket;
 const CoreController = require('./core.controller');
 const UserController = require("./user.controller");
 const RestaurantController = require('./restaurant.controller');
+const FriendsListUserController = require('./friendsListUser.controller');
 const HistoryModel = require('../models').Historical;
 const SessionDao = require('../dao').SessionDAO;
 const UserDao = require('../dao').UserDAO;
@@ -39,37 +40,48 @@ class HistoricalController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static create_history(req, res, next){
+    static async createHistory(req, res, next){
         let data = req.body;
         const authorizedFields = [
             'users',
             'restaurants'
         ];
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        const userList = []
+        if(data.friendList){
+            const friendList = await FriendsListUserController.getById(data.friendList)
+            if(friendList){
+                for (const friendUser of friendList.users) {
+                    friendUser && userList.push(friendUser)
+                }
+            }
+        }
+        userList.push(userId);
+
         Promise.resolve()
             .then(() => {
                 const promiseAll = [];
-                if(!Array.isArray(data.users) && !data.users.length){
+                if(!Array.isArray(userList) && !userList.length){
                     res.status(406).json({
                         status: 406,
                         message:"You need a put a string Id in users field body"
                     }).end();
                     throw new Error("You need a put a string Id in users field bod");
                 }
-
-                data.users.forEach((elem, i)=>{
-                    promiseAll.push(UserController.userNotExist(req,res,next,elem));
-                });
-
-                return Promise.all(promiseAll);
+                return {
+                    restaurants: data.restaurant,
+                    users: userList
+                };
             })
-            .then( ()  => HistoricalController.create(data, { authorizedFields }))
+            .then( (historic)  => HistoricalController.create(historic, { authorizedFields }))
             .then( order => HistoricalController.render(order))
             .then( order => res.status(201).json(order))
             .catch(next);
     }
 
     /**
-     * create a ticket with status todo
+     * render stats about a user
      * @param req
      * @param res
      * @param next
@@ -131,13 +143,6 @@ class HistoricalController extends CoreController {
         if(idUser === null){
             idUser = idTokenUser;
         }
-        await UserController.userNotExist(req,res,next,idUser);
-        let allStats = await HistoricalController.createStats(idUser);
-
-
-
-        await res.status(201).json({allStats});
-    }
 
     static async createStats(idUser){
         let userStats = {};

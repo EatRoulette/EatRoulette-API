@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 
 const allergenSchema = new Schema({
     name: String,
-    // TODO duplicate with allergens into user
     restaurants: [{
         type: Schema.Types.ObjectId,
         ref: 'Restaurant'
