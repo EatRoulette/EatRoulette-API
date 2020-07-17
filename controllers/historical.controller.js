@@ -78,7 +78,7 @@ class HistoricalController extends CoreController {
     static async render_stats_for_front(req, res, next){
         let idTokenUser = req.params.idTokenUser;
 
-        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        let idUser = await UserController.getUserIdByToken(idTokenUser);
         if(idUser === null){
             idUser = idTokenUser;
         }
@@ -241,7 +241,7 @@ class HistoricalController extends CoreController {
         let idTokenUser = req.params.idTokenUser;
         let idRestaurant = req.params.idRestaurant;
 
-        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        let idUser = await UserController.getUserIdByToken(idTokenUser);
         if(idUser === null){
             idUser = idTokenUser;
         }
@@ -264,7 +264,7 @@ class HistoricalController extends CoreController {
             let historicBean = new HistoricBean(historicFound.restaurants,historicFound.date_historical);
             for (let user of historicFound.users){
                 if(user._id != idUser){
-                    historicBean.users.push(await UserController.get_user_by_id(user._id));
+                    historicBean.users.push(await UserController.getUserById(user._id));
                 }
             }
             resultsBean.push(historicBean);
