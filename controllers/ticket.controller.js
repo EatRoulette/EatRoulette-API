@@ -111,6 +111,9 @@ class TicketController extends CoreController {
             case 'request' :
                 type = "Demande";
                 break;
+            case 'newRestaurant' :
+                type = 'Nouveau restaurant'
+                break;
             // aura t on d'autre types dans le futur?
         }
         const comments = []
