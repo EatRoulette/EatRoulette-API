@@ -12,7 +12,7 @@ module.exports = function(app) {
      * Menu management
      */
 
-    app.post('/gotoRestaurant/user/:token', bodyParser.json(), HistoricalController.createHistory);
+    app.post('/gotoRestaurant/user/:token', bodyParser.json(), HistoricalController.create_history);
   
     app.get('/frontTracking/restaurant/user/:idTokenUser', HistoricalController.render_stats_for_front);
     app.get('/tracking/restaurant/user/:idTokenUser', HistoricalController.render_stats_about_a_user);
