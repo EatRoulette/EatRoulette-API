@@ -7,6 +7,7 @@ const SessionDao = require('../dao').SessionDAO;
 const CoreController = require('./core.controller');
 const SecurityUtil = require('../utils').SecurityUtil;
 const SessionController = require('./session.controller');
+const UserModel = require('../models').User;
 
 class UserController extends CoreController{
 
@@ -185,6 +186,74 @@ class UserController extends CoreController{
             res.status(500).end();
         }
     }
+
+    static async getAllUser(){
+        let allUser = await UserController.getModel().find({});
+        const results = [];
+        for(let user of allUser){
+            const userBean = new UserBean(user.lastName,user.firstName,user.address,user.phone,user.town,user.email,user.postalCode,user.cgu, user.hasCompletedSituation, user.type);
+            userBean.allergens = [];
+            userBean.characteristics = [];
+            user.allergens.forEach(allergen => userBean.allergens.push(new AllergenBean(allergen.id, allergen.name)))
+            user.characteristics.forEach(characteristic => userBean.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
+            results.push(userBean)
+        }
+        return results;
+    }
+
+
+
+    /**
+     * Render All Menu
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async getAllUserWithId(req, res, next) {
+        const fields = [
+            '_id',
+            'lastName',
+            'firstName',
+            'address',
+            'phone',
+            'town',
+            'email',
+            'postalCode',
+            'cgu',
+            'allergens',
+            'characteristics',
+            'hasCompletedSituation',
+            'type',
+        ];
+
+        Promise.resolve()
+            .then(() => UserModel.find({}))
+            .then(users => UserController.read(users, { fields },true))
+            .then(users => {
+                const response = {
+                    count: users.length,
+                    menus: users.map(user => {
+                        return {
+                            user,
+                            request: {
+                                type: 'GET',
+                                url: `${process.env.SERV_ADDRESS}/menu/${user._id}`
+                            }
+                        };
+                    })
+                };
+                if(response.count === 0){
+                    res.status(204).end();
+                }
+                res.status(200).json(response);
+            }).catch(err => {
+            res.status(400).json({
+                message: "Bad request",
+                err,
+            })
+        });
+    };
 
     static async searchUserByFirstName(firstName){
         const users = await UserDao.searchUserByFirstName(firstName)

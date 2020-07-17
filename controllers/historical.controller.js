@@ -8,6 +8,7 @@ const UserDao = require('../dao').UserDAO;
 const TicketDao = require('../dao').TicketDAO;
 const TicketBean = require('../beans').TicketBean;
 const CommentBean = require('../beans').CommentBean;
+const HistoricBean = require('../beans').HistoricBean;
 
 class HistoricalController extends CoreController {
     /**
@@ -24,6 +25,7 @@ class HistoricalController extends CoreController {
             },
             {
                 path: 'restaurants',
+                select: 'name website address city postalCode'
             },
         ];
 
@@ -73,9 +75,62 @@ class HistoricalController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async render_stats_about_a_user(req, res, next){
-        let idUser = req.params.idUser;
+    static async render_stats_for_front(req, res, next){
+        let idTokenUser = req.params.idTokenUser;
 
+        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        if(idUser === null){
+            idUser = idTokenUser;
+        }
+        await UserController.userNotExist(req,res,next,idUser);
+        let allStats = await HistoricalController.createStatsBean(idUser);
+
+        await res.status(201).json({allStats});
+    }
+
+    static async createStatsBean(idUser){
+        let restaurantsStats = [];
+        let userStats = {};
+        const result = await HistoryModel.find({
+            users:{
+                $in:[idUser]
+            }
+        });
+        userStats.numberPurchase = result.length;
+        for (const element of result){
+            //Check what type of restaurant user likes to go
+            let restaurantInfo = await RestaurantController.getRestaurantsById(element.restaurants);
+            if(HistoricalController.containsRestaurant(restaurantsStats,"id",''+restaurantInfo.id)) {
+                restaurantsStats.find(function (item, j) {
+                    if(item.restaurant.id == ''+restaurantInfo.id){
+                        restaurantsStats[j].count++;
+                    }
+                });
+            } else {
+                restaurantsStats.push({
+                    "restaurant": RestaurantController.manageRestaurant(restaurantInfo) ,
+                    "count": 1,
+                })
+            }
+        }
+
+        return restaurantsStats;
+    }
+
+    /**
+     * create a ticket with status todo
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async render_stats_about_a_user(req, res, next){
+        let idTokenUser = req.params.idTokenUser;
+
+        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        if(idUser === null){
+            idUser = idTokenUser;
+        }
         await UserController.userNotExist(req,res,next,idUser);
         let allStats = await HistoricalController.createStats(idUser);
 
@@ -182,6 +237,42 @@ class HistoricalController extends CoreController {
         return allstats;
     }
 
+    static async render_historic_details(req, res, next){
+        let idTokenUser = req.params.idTokenUser;
+        let idRestaurant = req.params.idRestaurant;
+
+        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        if(idUser === null){
+            idUser = idTokenUser;
+        }
+        await UserController.userNotExist(req,res,next,idUser);
+
+
+        let allStats = await HistoricalController.generateHistoric(idUser,idRestaurant);
+
+        await res.status(201).json({allStats});
+    }
+
+    static async generateHistoric(idUser,idRestaurant){
+        let resultsBean = [];
+        let result = await HistoricalController.find({$and:[{users:{
+                $in:[idUser]
+            }
+        },{restaurants:{$eq:idRestaurant}}]});
+        result = await HistoricalController.render(result);
+        for (let historicFound of result){
+           let historicBean = new HistoricBean(historicFound.restaurants,historicFound.date_historical);
+           for (let user of historicFound.users){
+               if(user._id != idUser){
+                   historicBean.users.push(await UserController.get_user_by_id(user._id));
+               }
+           }
+            resultsBean.push(historicBean);
+        }
+
+        return resultsBean;
+
+    };
 }
 
 HistoricalController.prototype.modelName = 'historical';

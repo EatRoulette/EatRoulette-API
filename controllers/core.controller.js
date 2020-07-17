@@ -195,6 +195,12 @@ class Core {
         }
         return false;
     }
+    static containsRestaurant(arr, key, val) {
+        for (let i = 0; i < arr.length; i++) {
+            if(arr[i]['restaurant'] && arr[i]['restaurant'][key] == val) return true;
+        }
+        return false;
+    }
 }
 
 // Model Name of the controller
