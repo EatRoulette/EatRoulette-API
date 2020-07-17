@@ -13,8 +13,11 @@ module.exports = function(app) {
      */
 
     app.post('/gotoRestaurant/user/:token', bodyParser.json(), HistoricalController.createHistory);
-
-    app.get('/tracking/restaurant/user/:idUser', HistoricalController.renderStatsAboutAnUser);
+  
+    app.get('/frontTracking/restaurant/user/:idTokenUser', HistoricalController.render_stats_for_front);
+    app.get('/tracking/restaurant/user/:idTokenUser', HistoricalController.render_stats_about_a_user);
+  
+    app.get('/historic/restaurant/:idTokenUser/:idRestaurant', HistoricalController.render_historic_details);
 
     app.post('/manage/create/friendsListUser', bodyParser.json(), FriendsListUserController.createFriendsListUser);
 
@@ -41,7 +44,13 @@ module.exports = function(app) {
     app.post('/myRestaurantList/delete/:token', bodyParser.json(), RestaurantListController.deleteRestaurant);
     app.delete('/myRestaurantList/:id', RestaurantListController.deleteList);
 
+    app.get('/users/', async (req,res) =>{
+        const result = await UserController.getAllUser();
+        res.status(200).json(result)
+    });
+    app.get('/usersWithId/', UserController.getAllUserWithId);
     app.get('/user/:token', UserController.getUser);
+
 
 
     app.post('/user/update/:token', bodyParser.json(), UserController.updateUser);

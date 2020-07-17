@@ -8,4 +8,5 @@ module.exports = {
     CommentBean: require('./comment.bean'),
     RestaurantBean: require('./restaurant.bean'),
     RestaurantListBean: require('./restaurantList.bean'),
+    HistoricBean: require('./historic.bean')
 };
