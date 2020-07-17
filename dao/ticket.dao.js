@@ -41,7 +41,7 @@ class TicketDao {
             .populate({
                 path: 'ticket',
                 model: 'Ticket',
-                select: 'id title message status type comments',
+                select: 'id title message status type comments author',
                 populate: {
                     path: 'comments',
                     model: 'Comment',

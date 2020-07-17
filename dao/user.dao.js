@@ -78,6 +78,21 @@ class UserDao {
             return undefined;
         };
 
+    }/**
+     * @param id {string}
+     * @returns {Promise<User|undefined>}
+     */
+    static async findSmallById(id) {
+        if(mongoose.Types.ObjectId.isValid(id)){
+            return User.findOne({_id: id}).populate('',
+                '-__v -restaurants -users -sessions -allergens ' +
+                '-characteristics - address -phone -town - email -postalCode ' +
+                '-cgu -hasCompletedSituation -type');
+        }
+        else {
+            return undefined;
+        };
+
     }
     /**
      * @param email {string}

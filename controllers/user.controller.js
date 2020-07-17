@@ -228,6 +228,11 @@ class UserController extends CoreController{
     }
 
 
+    static async getSmallUserById(userId){
+        return await UserDao.findSmallById(userId);
+    }
+
+
     static async getUserByEmail(email){
         const userDao = await UserDao.findByEmail(email);
         return !!userDao;

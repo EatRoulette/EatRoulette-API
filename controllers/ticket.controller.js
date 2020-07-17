@@ -1,9 +1,11 @@
 const TicketModel = require('../models').Ticket;
 const CoreController = require('./core.controller');
+const UserController = require('./user.controller');
 const SessionDao = require('../dao').SessionDAO;
 const TicketDao = require('../dao').TicketDAO;
 const TicketBean = require('../beans').TicketBean;
 const CommentBean = require('../beans').CommentBean;
+const UserBean = require('../beans').UserBean;
 
 class TicketController extends CoreController {
     /**
@@ -87,7 +89,7 @@ class TicketController extends CoreController {
         }
     }
 
-    static manageTicket(ticket, userId = null){
+    static async manageTicket(ticket, userId = null){
         let status = "";
         let type = "";
         switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
@@ -120,7 +122,14 @@ class TicketController extends CoreController {
         ticket.comments.forEach(comment => {
             comments.push(new CommentBean(comment.message, JSON.stringify(comment.author) === JSON.stringify(userId)))
         })
-        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, ticket.created_at);
+        let author = null;
+        if(ticket.author.firstName !== undefined){
+            author = new UserBean(ticket.author.firstName, ticket.author.lastName)
+        }else {
+            const smallAuthor = await UserController.getSmallUserById(ticket.author)
+            author = new UserBean(smallAuthor.firstName, smallAuthor.lastName)
+        }
+        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at);
     }
 
     /**
@@ -136,9 +145,10 @@ class TicketController extends CoreController {
         if(userId){
             const tickets = await TicketDao.getByUserId(userId)
             const ticketBeans = [];
-            tickets.forEach(ticket => {
-                ticketBeans.push(TicketController.manageTicket(ticket, userId))
-            })
+            for (const ticket of tickets) {
+                const ticketBean = await TicketController.manageTicket(ticket, userId)
+                ticketBeans.push(ticketBean)
+            }
             res.status(200).json(ticketBeans)
         }else{
             res.status(500).json({
@@ -161,7 +171,7 @@ class TicketController extends CoreController {
         if(userId){
             const ticket = await TicketDao.getById(idTicket)
             if(JSON.stringify(ticket.author) === JSON.stringify(userId)){ // or else will return false (?)
-                const ticketBean = TicketController.manageTicket(ticket, userId)
+                const ticketBean = await TicketController.manageTicket(ticket, userId)
                 res.status(200).json(ticketBean)
             }else{
                 res.status(500).json({
@@ -186,7 +196,10 @@ class TicketController extends CoreController {
             const tickets = await TicketDao.getAll();
             if(tickets){
                 const ticketsBean = []
-                tickets.forEach(t => ticketsBean.push(TicketController.manageTicket(t)))
+                for (const t of tickets) {
+                    const ticketBean = await TicketController.manageTicket(t)
+                    ticketsBean.push(ticketBean)
+                }
                 res.status(200).json(ticketsBean)
             }else{
                 res.status(500).json({
@@ -263,7 +276,7 @@ class TicketController extends CoreController {
         const comment = { author:userId, message }
         ticket.comments.push(comment);
         await ticket.save();
-        const ticketBean = TicketController.manageTicket(ticket, userId);
+        const ticketBean = await TicketController.manageTicket(ticket, userId);
         res.status(200).json(ticketBean);
     }else{
         res.status(500).json({
