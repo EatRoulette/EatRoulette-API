@@ -141,7 +141,7 @@ class HistoricalController extends CoreController {
 
 
 
-        await res.status(201).json({allStats});
+        await res.status(200).json({allStats});
     }
 
     static async createStats(idUser){

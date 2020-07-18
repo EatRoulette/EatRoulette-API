@@ -3,9 +3,10 @@ const CharacteristicController = require('../controllers/characteristic.controll
 const AllergenController = require('../controllers/alleregen.controller');
 const SituationBean = require('../beans/situation.bean');
 const bodyParser = require('body-parser');
+const AuthMiddleware = require('../middlewares').AuthMiddleware;
 
 module.exports = function(app) {
-    app.get('/situation/:token', async (req, res) => {
+    app.get('/situation/:token', AuthMiddleware.isConnected,async (req, res) => {
 
         const userId = await UserController.getUserIdByToken(req.params.token)
         const user = await UserController.getUserById(userId)
@@ -28,7 +29,7 @@ module.exports = function(app) {
             res.status(500).end();
         }
     });
-    app.post('/situation/:token', bodyParser.json(), async (req, res) => {
+    app.post('/situation/:token', AuthMiddleware.isConnected, bodyParser.json(), async (req, res) => {
         const userId = await UserController.getUserIdByToken(req.params.token)
         const userToUpdate = await UserController.getUserById(userId)
         const response = req.body

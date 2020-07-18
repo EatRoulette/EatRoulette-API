@@ -13,7 +13,7 @@ module.exports = function(app) {
     /**
      * Create restaurant
      */
-    app.post('/restaurant', bodyParser.json(), async (req, res) => {
+    app.post('/restaurant', AuthMiddleware.isAdmin,bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.saveRestaurant(req);
 
         if(ret === -1){
@@ -28,7 +28,7 @@ module.exports = function(app) {
     /**
      * Add restaurant from front
      */
-    app.post('/restaurant/add/:token', bodyParser.json(), async (req, res) => {
+    app.post('/restaurant/add/:token', AuthMiddleware.isConnected, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.addRestaurant(req);
 
         if(ret === -1){
@@ -74,7 +74,7 @@ module.exports = function(app) {
     /**
      * Get random restaurant roll
      */
-    app.post('/restaurant/roll/:token',  bodyParser.json() ,async (req, res, next) => {
+    app.post('/restaurant/roll/:token', AuthMiddleware.isConnected, bodyParser.json() ,async (req, res, next) => {
         const restaurantsListId = req.body.list;
         const friendListId = req.body.friendList;
 
@@ -130,7 +130,7 @@ module.exports = function(app) {
     /**
      * Modify restaurant by id
      */
-    app.put('/restaurant/:id', bodyParser.json(), async (req, res) => {
+    app.put('/restaurant/:id', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.modifyById(req.params.id, req);
 
         if(ret === -1) {
@@ -146,7 +146,7 @@ module.exports = function(app) {
     /**
      * Delete restaurant by id
      */
-    app.delete('/restaurant/:id', async (req, res) => {
+    app.delete('/restaurant/:id', AuthMiddleware.isAdmin, async (req, res) => {
         const ret = await RestaurantController.deleteById(req.params.id);
 
         if(ret === -1) {
@@ -202,7 +202,7 @@ module.exports = function(app) {
     /**
      * Add an allergen to restaurant
      */
-    app.post('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.post('/allergen/restaurant/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.addAllergenToRestaurant(req.params.idRestaurant, req.body.idAllergen);
 
         if(ret === -1){
@@ -216,7 +216,7 @@ module.exports = function(app) {
     /**
      * Delete an allergen of a restaurant
      */
-    app.delete('/allergen/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.delete('/allergen/restaurant/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.delAllergenToRestaurant(req.body.idAllergen, req.params.idRestaurant);
 
         if(ret === -1){
@@ -234,7 +234,7 @@ module.exports = function(app) {
     /**
      * Add a characteristic to a restaurant
      */
-    app.post('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.post('/characteristic/restaurant/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.addCharacteristicToRestaurant(req.params.idRestaurant, req.body.idCharac);
 
         if(ret === -1){
@@ -248,7 +248,7 @@ module.exports = function(app) {
     /**
      * Delete a restaurant characteristic
      */
-    app.delete('/characteristic/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.delete('/characteristic/restaurant/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.delCharacteristicToRestaurant(req.body.idCharac, req.params.idRestaurant);
 
         if(ret === -1){
@@ -266,7 +266,7 @@ module.exports = function(app) {
     /**
      * Create restaurant type
      */
-    app.post('/type/restaurant', bodyParser.json(), async (req, res) => {
+    app.post('/type/restaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await TypeRestaurantController.saveType(req);
 
         if(ret === -2){
@@ -283,7 +283,7 @@ module.exports = function(app) {
     /**
      * Add a type to a restaurant
      */
-    app.post('/type/restaurant/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.post('/type/restaurant/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.addTypeToRestaurant(req.params.idRestaurant, req.body.idType);
 
         if(ret === -1){
@@ -329,7 +329,7 @@ module.exports = function(app) {
     /**
      * Update restaurant type
      */
-    app.put('/type/restaurant/:id', bodyParser.json(), async (req, res) => {
+    app.put('/type/restaurant/:id', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await TypeRestaurantController.modifyById(req.params.id, req);
 
         if(ret === -3 ){
@@ -347,7 +347,7 @@ module.exports = function(app) {
     /**
      * Delete a type in a restaurant
      */
-    app.delete('/type/restaurant/del/:idRestaurant', bodyParser.json(), async (req, res) => {
+    app.delete('/type/restaurant/del/:idRestaurant', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await RestaurantController.delTypeToRestaurant(req.params.idRestaurant, req.body.idType);
 
         if(ret === -1){
@@ -361,7 +361,7 @@ module.exports = function(app) {
     /**
      * Delete restaurant type by id
      */
-    app.delete('/type/restaurant/:id', async (req, res) => {
+    app.delete('/type/restaurant/:id', AuthMiddleware.isAdmin, async (req, res) => {
         const ret = await TypeRestaurantController.deleteById(req.params.id);
 
         if(ret === -1) {
