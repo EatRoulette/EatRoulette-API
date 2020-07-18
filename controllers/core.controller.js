@@ -124,6 +124,18 @@ class Core {
         )
     }
 
+    static eliminateDuplicates(arr) {
+        let i, len=arr.length, out=[], obj={};
+
+        for (i=0;i<len;i++) {
+            obj[arr[i]]=0;
+        }
+        for (i in obj) {
+            out.push(i);
+        }
+        return out;
+    }
+
     // -------------------------
     // Create a lot of new documents in collections
     // -------------------------
@@ -175,6 +187,19 @@ class Core {
     // -------------------------
     static getModel() {
         return mongoose.model(this.prototype.modelName);
+    }
+
+    static contains(arr, key, val) {
+        for (let i = 0; i < arr.length; i++) {
+            if(arr[i][key] == val) return true;
+        }
+        return false;
+    }
+    static containsRestaurant(arr, key, val) {
+        for (let i = 0; i < arr.length; i++) {
+            if(arr[i]['restaurant'] && arr[i]['restaurant'][key] == val) return true;
+        }
+        return false;
     }
 }
 

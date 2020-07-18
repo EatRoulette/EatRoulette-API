@@ -1,9 +1,11 @@
 const TicketModel = require('../models').Ticket;
 const CoreController = require('./core.controller');
+const UserController = require('./user.controller');
 const SessionDao = require('../dao').SessionDAO;
 const TicketDao = require('../dao').TicketDAO;
 const TicketBean = require('../beans').TicketBean;
 const CommentBean = require('../beans').CommentBean;
+const UserBean = require('../beans').UserBean;
 
 class TicketController extends CoreController {
     /**
@@ -32,15 +34,15 @@ class TicketController extends CoreController {
     }
 
     /**
-     * create a ticket with status todo
+     * create a ticket with status created
      * @param req
      * @param res
      * @param next
      * @returns {Promise<void>}
      */
-    static async create_ticket(req, res, next){
+    static async createTicket(req, res, next){
         let data = req.body;
-        data.status = 'todo';
+        data.status = 'created';
 
         const authorizedFields = [
             'title',
@@ -64,7 +66,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async support_request(req, res, next){
+    static async supportRequest(req, res, next){
         const data = req.body;
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
@@ -76,7 +78,7 @@ class TicketController extends CoreController {
                 author: userId,
                 type: data.type
             }
-            await TicketController.create(newTicket)
+            await TicketController.create(newTicket);
             res.status(200).json({
                 message: `The ticket has been created`
             })
@@ -87,7 +89,7 @@ class TicketController extends CoreController {
         }
     }
 
-    static manageTicket(ticket, userId){
+    static async manageTicket(ticket, userId = null){
         let status = "";
         let type = "";
         switch (ticket.status){ // 'created' | 'pending' | 'done' | 'standby'
@@ -111,13 +113,23 @@ class TicketController extends CoreController {
             case 'request' :
                 type = "Demande";
                 break;
+            case 'newRestaurant' :
+                type = 'Nouveau restaurant'
+                break;
             // aura t on d'autre types dans le futur?
         }
         const comments = []
         ticket.comments.forEach(comment => {
             comments.push(new CommentBean(comment.message, JSON.stringify(comment.author) === JSON.stringify(userId)))
         })
-        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, ticket.created_at);
+        let author = null;
+        if(ticket.author.firstName !== undefined){
+            author = new UserBean(ticket.author.firstName, ticket.author.lastName)
+        }else {
+            const smallAuthor = await UserController.getSmallUserById(ticket.author)
+            author = new UserBean(smallAuthor.firstName, smallAuthor.lastName)
+        }
+        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at);
     }
 
     /**
@@ -127,15 +139,16 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async get_tickets_for_user(req, res, next){
+    static async getTicketsForUser(req, res, next){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const tickets = await TicketDao.getByUserId(userId)
             const ticketBeans = [];
-            tickets.forEach(ticket => {
-                ticketBeans.push(TicketController.manageTicket(ticket, userId))
-            })
+            for (const ticket of tickets) {
+                const ticketBean = await TicketController.manageTicket(ticket, userId)
+                ticketBeans.push(ticketBean)
+            }
             res.status(200).json(ticketBeans)
         }else{
             res.status(500).json({
@@ -151,14 +164,14 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async get_ticket_for_user(req, res, next){
+    static async getTicketForUser(req, res, next){
         const token = req.params.token;
         const idTicket = req.params.id;
         const userId = await SessionDao.getUserIDByToken(token);
         if(userId){
             const ticket = await TicketDao.getById(idTicket)
             if(JSON.stringify(ticket.author) === JSON.stringify(userId)){ // or else will return false (?)
-                const ticketBean = TicketController.manageTicket(ticket, userId)
+                const ticketBean = await TicketController.manageTicket(ticket, userId)
                 res.status(200).json(ticketBean)
             }else{
                 res.status(500).json({
@@ -173,13 +186,36 @@ class TicketController extends CoreController {
     }
 
     /**
+     * get all tickets
+     * @param req
+     * @param res
+     * @param next
+     * @returns {Promise<void>}
+     */
+    static async getAllTickets(req, res, next){
+            const tickets = await TicketDao.getAll();
+            if(tickets){
+                const ticketsBean = []
+                for (const t of tickets) {
+                    const ticketBean = await TicketController.manageTicket(t)
+                    ticketsBean.push(ticketBean)
+                }
+                res.status(200).json(ticketsBean)
+            }else{
+                res.status(500).json({
+                    message: 'Aucun tickets'
+                })
+            }
+    }
+
+    /**
      * delete comment of ticket from id ticket and comment id
      * @param req
      * @param res
      * @param next
      * @returns {Promise<void>}
      */
-    static async delete_comment_of_ticket(req, res, next) {
+    static async deleteCommentOfTicket(req, res, next) {
     const id = req.params.id;
     const commentId = req.params.comment;
 
@@ -201,7 +237,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async add_comment_to_ticket(req, res, next){
+    static async addCommentToTicket(req, res, next){
     const id = req.params.id;
     const author = req.params.idAuthor;
     const { message } = req.body;
@@ -224,7 +260,7 @@ class TicketController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static async add_comment_to_ticket_from_front(req, res, next){
+    static async addCommentToTicketFromFront(req, res, next){
     const token = req.params.token;
     const { message, idTicket } = req.body;
     const userId = await SessionDao.getUserIDByToken(token);
@@ -240,7 +276,7 @@ class TicketController extends CoreController {
         const comment = { author:userId, message }
         ticket.comments.push(comment);
         await ticket.save();
-        const ticketBean = TicketController.manageTicket(ticket, userId);
+        const ticketBean = await TicketController.manageTicket(ticket, userId);
         res.status(200).json(ticketBean);
     }else{
         res.status(500).json({
@@ -278,6 +314,51 @@ class TicketController extends CoreController {
         }
         return super.update(id, data, options)
     }
+
+    /**
+     * Get all opened tickets is there is
+     * @returns {Promise<undefined| tickets>}
+     */
+    static async getOpenTickets(){
+        const openedTickets = await TicketDao.getOpenedTickets();
+
+        if (openedTickets){
+            return openedTickets;
+        }
+        return undefined;
+    }
+
+    /**
+     *
+     * @returns {Promise<void>}
+     */
+    static async updateTicketStatus(ticketId, newStatus){
+        const isStatusValid = await this.isStatusValid(newStatus);
+        if (!ticketId || !isStatusValid){
+            return -1;
+        }
+
+        const ticket = await TicketDao.updateStatus(ticketId, newStatus);
+
+        if ( ticket ){
+            return ticket;
+        } else {
+            return undefined;
+        }
+    }
+
+    /**
+     * Check if status valid
+     * @param status
+     * @returns {Promise<undefined|string>}
+     */
+    static async isStatusValid(status){
+        if (status === "done" || status === "pending" || status === "created" || status === "standby"){
+            return status;
+        }
+        return undefined;
+    }
+
 }
 
 TicketController.prototype.modelName = 'Ticket';
