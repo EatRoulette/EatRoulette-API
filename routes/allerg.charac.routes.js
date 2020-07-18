@@ -3,6 +3,7 @@ const AllergenController = require('../controllers').AllergenController;
 const CharacteristicController = require('../controllers').CharacteristicController;
 const AllergenBean = require('../beans').AllergenBean;
 const CharacteristicnBean = require('../beans').CharacteristicnBean;
+const AuthMiddleware = require('../middlewares').AuthMiddleware;
 
 module.exports = function(app) {
 
@@ -13,7 +14,7 @@ module.exports = function(app) {
     /**
      * Create an allergen
      */
-    app.post('/allergen', bodyParser.json(), async (req, res) => {
+    app.post('/allergen', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await AllergenController.saveAllergen(req);
 
         if(ret === -2){
@@ -61,9 +62,9 @@ module.exports = function(app) {
     });
 
     /**
-     * Update allergen type
+     * Update allergen
      */
-    app.put('/allergen/:id', bodyParser.json(), async (req, res) => {
+    app.put('/allergen/:id', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await AllergenController.modifyById(req.params.id, req);
 
         if(ret === -3 ){
@@ -81,7 +82,7 @@ module.exports = function(app) {
     /**
      * Delete allergen by id
      */
-    app.delete('/allergen/:id', async (req, res) => {
+    app.delete('/allergen/:id', AuthMiddleware.isAdmin, async (req, res) => {
         const ret = await AllergenController.deleteById(req.params.id);
 
         if(ret === -1) {
@@ -101,7 +102,7 @@ module.exports = function(app) {
     /**
      * Create a characteristic
      */
-    app.post('/characteristic', bodyParser.json(), async (req, res) => {
+    app.post('/characteristic', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await CharacteristicController.saveCharacteristic(req);
 
         if(ret === -2){
@@ -152,7 +153,7 @@ module.exports = function(app) {
     /**
      * Update characteristic type
      */
-    app.put('/characteristic/:id', bodyParser.json(), async (req, res) => {
+    app.put('/characteristic/:id', AuthMiddleware.isAdmin, bodyParser.json(), async (req, res) => {
         const ret = await CharacteristicController.modifyById(req.params.id, req);
 
         if(ret === -3 ){
@@ -170,7 +171,7 @@ module.exports = function(app) {
     /**
      * Delete characteristic by id
      */
-    app.delete('/characteristic/:id', async (req, res) => {
+    app.delete('/characteristic/:id', AuthMiddleware.isAdmin, async (req, res) => {
         const ret = await CharacteristicController.deleteById(req.params.id);
 
         if(ret === -1) {
