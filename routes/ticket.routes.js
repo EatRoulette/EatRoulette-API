@@ -8,6 +8,7 @@ module.exports = function(app) {
     app.post('/ticket/support/comment/:token', bodyParser.json(), TicketController.addCommentToTicketFromFront);
     app.get('/ticket/support/:token', TicketController.getTicketsForUser);
     app.get('/ticket/support/:token/:id', TicketController.getTicketForUser);
+    app.get('/tickets', TicketController.getAllTickets);
     app.post('/ticket/create/', bodyParser.json(), TicketController.createTicket);
     app.delete('/ticket/:id/comments/:comment', TicketController.deleteCommentOfTicket);
     app.post('/ticket/:id/comments/:idAuthor', bodyParser.json(), TicketController.addCommentToTicket);

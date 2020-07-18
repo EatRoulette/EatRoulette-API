@@ -520,7 +520,7 @@ class RestaurantController extends CoreController{
             req.body.postalCode && req.body.dep && req.body.types && req.body._idSituation ) {
 
             return {
-                name: req.body.name, site: req.body.site, address: req.body.address,
+                name: req.body.name, website: req.body.site, address: req.body.address,
                 city: req.body.city, postalCode: req.body.postalCode, dep: req.body.dep, types: req.body.types,
                 _idSituation: req.body._idSituation
             }

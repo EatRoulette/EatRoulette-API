@@ -1,13 +1,7 @@
 const mongoose = require('mongoose');
+const Comment = require('../models').Comment;
 
 const Schema = mongoose.Schema;
-
-const CommentSchema = new Schema({
-    message: { type: String, default: '' },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    created_at: { type: Date, default: Date.now },
-});
-module.exports = mongoose.model('Comment', CommentSchema);
 
 const TicketSchema = new Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -28,7 +22,7 @@ const TicketSchema = new Schema({
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: [],
     }, // user in charge of the ticket =>  relevant for Java back office
-    comments: { type: [CommentSchema], default: [] },
+    comments: { type: [Comment], default: [] },
     created_at: { type: Date, default: Date.now },
 });
 

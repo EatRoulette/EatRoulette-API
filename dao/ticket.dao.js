@@ -32,6 +32,23 @@ class TicketDao {
                 }
             });
     }
+    /**
+     * Get all tickets
+     * @returns {Promise<*>}
+     */
+    static async getAll() {
+        return await Ticket.find()
+            .populate({
+                path: 'ticket',
+                model: 'Ticket',
+                select: 'id title message status type comments author',
+                populate: {
+                    path: 'comments',
+                    model: 'Comment',
+                    select: 'message author'
+                }
+            });
+    }
 
     /**
      * Get all tickets with any status except "done"
