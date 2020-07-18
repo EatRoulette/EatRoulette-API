@@ -1,13 +1,9 @@
-const TicketModel = require('../models').Ticket;
 const CoreController = require('./core.controller');
 const UserController = require("./user.controller");
 const RestaurantController = require('./restaurant.controller');
+const FriendsListUserController = require('./friendsListUser.controller');
 const HistoryModel = require('../models').Historical;
 const SessionDao = require('../dao').SessionDAO;
-const UserDao = require('../dao').UserDAO;
-const TicketDao = require('../dao').TicketDAO;
-const TicketBean = require('../beans').TicketBean;
-const CommentBean = require('../beans').CommentBean;
 const HistoricBean = require('../beans').HistoricBean;
 
 class HistoricalController extends CoreController {
@@ -39,33 +35,42 @@ class HistoricalController extends CoreController {
      * @param next
      * @returns {Promise<void>}
      */
-    static create_history(req, res, next){
-        let data = req.body;
+    static async create_history(req, res, next){
+        const {friendList, restaurant} = req.body;
         const authorizedFields = [
             'users',
             'restaurants'
         ];
-        Promise.resolve()
-            .then(() => {
-                const promiseAll = [];
-                if(!Array.isArray(data.users) && !data.users.length){
-                    res.status(406).json({
-                        status: 406,
-                        message:"You need a put a string Id in users field body"
-                    }).end();
-                    throw new Error("You need a put a string Id in users field bod");
-                }
+        const data = {
+            restaurants: [restaurant],
+            users: []
+        };
+        if(!friendList || !friendList.length){
+            const token = req.params.token;
+            const userId = await SessionDao.getUserIDByToken(token);
+            data.users.push(userId)
+        }else {
+            const friendListModel = await FriendsListUserController.getById(friendList)
+            friendListModel.users.forEach(user => data.users.push(user))
+            data.users.push(friendListModel.creator)
+        }
 
-                data.users.forEach((elem, i)=>{
-                    promiseAll.push(UserController.userNotExist(req,res,next,elem));
-                });
-
-                return Promise.all(promiseAll);
+        const order = await HistoricalController.create(data, { authorizedFields });
+        if(order){
+            const render = await HistoricalController.render(order);
+            if(render){
+                res.status(201).json(render);
+            }else {
+                res.status(500).json({
+                    message: `Une erreur est survenue`
+                })
+            }
+        }else {
+            res.status(500).json({
+                message: `Une erreur est survenue`
             })
-            .then( ()  => HistoricalController.create(data, { authorizedFields }))
-            .then( order => HistoricalController.render(order))
-            .then( order => res.status(201).json(order))
-            .catch(next);
+        }
+
     }
 
     /**
