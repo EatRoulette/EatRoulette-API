@@ -231,18 +231,8 @@ class UserController extends CoreController{
             .then(() => UserModel.find({}))
             .then(users => UserController.read(users, { fields },true))
             .then(users => {
-                const response = {
-                    count: users.length,
-                    menus: users.map(user => {
-                        return {
-                            user,
-                            request: {
-                                type: 'GET',
-                                url: `${process.env.SERV_ADDRESS}/menu/${user._id}`
-                            }
-                        };
-                    })
-                };
+                const response = users.map(user => user);
+
                 if(response.count === 0){
                     res.status(204).end();
                 }
