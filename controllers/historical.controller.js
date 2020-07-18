@@ -127,7 +127,7 @@ class HistoricalController extends CoreController {
     static async render_stats_about_a_user(req, res, next){
         let idTokenUser = req.params.idTokenUser;
 
-        let idUser = await UserController.get_user_id_by_token(idTokenUser);
+        let idUser = await UserController.getUserIdByToken(idTokenUser);
         if(idUser === null){
             idUser = idTokenUser;
         }
