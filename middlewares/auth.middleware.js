@@ -17,7 +17,7 @@ class AuthMiddleware {
 
     static async isConnected(req, res, next){
         let token = req.headers['x-access-token'] || false;
-        console.log('COUCOU',token)
+
         await AuthMiddleware.checkToken(token, res);
         return next();
     }
