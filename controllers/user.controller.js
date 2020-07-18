@@ -6,7 +6,6 @@ const SessionDao = require('../dao').SessionDAO;
 const CoreController = require('./core.controller');
 const SecurityUtil = require('../utils').SecurityUtil;
 const SessionController = require('./session.controller');
-const UserModel = require('../models').User;
 
 class UserController extends CoreController{
 
@@ -115,7 +114,7 @@ class UserController extends CoreController{
         }
     }
 
-    static async deleteUser(req,res,next){
+    static async delete_user(req,res,next){
         const id = req.params.userId;
         Promise.resolve()
             .then(() =>  UserController.userNotExist(req,res,next,id))
@@ -130,36 +129,21 @@ class UserController extends CoreController{
             .catch(next);
     }
 
-    static async updateUser(req, res, next){
-        const token = req.params.token;
+    static async modif_user(req, res, next){
+        const id = req.params.userId;
         let data = req.body;
-        const userId = await SessionDao.getUserIDByToken(token);
-        if(userId){
-            const user = await UserController.getUserById(userId);
-            if(user){
-                let userUpdated = null;
-                // check if isNewEmail => already exists
-                const email = data.email;
-                if(email !== user.email){
-                    const exists = UserController.getUserByEmail(email)
-                    if(exists){
-                        res.status(500).end();
-                    }else{
-                        userUpdated = await UserController.update_user(data, userId);
-                    }
-                }else {
-                    // save new data
-                   userUpdated = await UserController.update_user(data, userId);
-                }
-
-                res.status(200).json(userUpdated);
-            } else {
-                res.status(500).end();
-            }
-        }else{
-            res.status(500).end();
-        }
-
+        Promise.resolve()
+            .then(() =>
+                UserController.userNotExist(req,res,next,id)
+            )
+            .then(user => {
+                //TODO check if email already exist
+                user.set(data);
+                return user.save();
+            })
+            .then(user => UserController.render(user))
+            .then(user => res.json(user))
+            .catch(next);
     }
 
     static async userNotExist(req,res,next,id){
@@ -175,10 +159,10 @@ class UserController extends CoreController{
             });
     }
 
-    static async getUser(req,res){
+    static async get_user(req,res){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
-        const user = await UserController.getUserById(userId);
+        const user = await UserController.get_user_by_id(userId);
         if(user){
             res.status(200).json(user);
         } else {
@@ -186,106 +170,10 @@ class UserController extends CoreController{
         }
     }
 
-    static async getAllUser(){
-        let allUser = await UserController.getModel().find({});
-        const results = [];
-        for(let user of allUser){
-            const userBean = new UserBean(user.lastName,user.firstName,user.address,user.phone,user.town,user.email,user.postalCode,user.cgu, user.hasCompletedSituation, user.type);
-            userBean.allergens = [];
-            userBean.characteristics = [];
-            user.allergens.forEach(allergen => userBean.allergens.push(new AllergenBean(allergen.id, allergen.name)))
-            user.characteristics.forEach(characteristic => userBean.characteristics.push(new CharacteristicBean(characteristic.id, characteristic.name)))
-            results.push(userBean)
-        }
-        return results;
-    }
-
-
-
-    /**
-     * Render All Menu
-     * @param req
-     * @param res
-     * @param next
-     * @returns {Promise<void>}
-     */
-    static async getAllUserWithId(req, res, next) {
-        const fields = [
-            '_id',
-            'lastName',
-            'firstName',
-            'address',
-            'phone',
-            'town',
-            'email',
-            'postalCode',
-            'cgu',
-            'allergens',
-            'characteristics',
-            'hasCompletedSituation',
-            'type',
-        ];
-
-        Promise.resolve()
-            .then(() => UserModel.find({}))
-            .then(users => UserController.read(users, { fields },true))
-            .then(users => {
-                const response = {
-                    count: users.length,
-                    menus: users.map(user => {
-                        return {
-                            user,
-                            request: {
-                                type: 'GET',
-                                url: `${process.env.SERV_ADDRESS}/menu/${user._id}`
-                            }
-                        };
-                    })
-                };
-                if(response.count === 0){
-                    res.status(204).end();
-                }
-                res.status(200).json(response);
-            }).catch(err => {
-            res.status(400).json({
-                message: "Bad request",
-                err,
-            })
-        });
-    };
-
-    static async searchUserByFirstName(firstName){
-        const users = await UserDao.searchUserByFirstName(firstName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
-    static async searchUserByLastName(lastName){
-        const users = await UserDao.searchUserByLastName(lastName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
-    static async searchUserByFirstNameAndLastName(firstName, lastName){
-        const users = await UserDao.searchUserByFirstNameAndLastName(firstName, lastName)
-        const results = []
-        for(let user of users){
-            results.push(new ShortUserBean(user._id, user.firstName, user.lastName))
-        }
-        return results
-    }
-
-    static async getUserById(userId){
+    static async get_user_by_id(userId){
         const userDao = await UserDao.findById(userId);
         if(userDao){
-            const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,
-                userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation, userDao.type, userDao._id);
+            const user = new UserBean(userDao.lastName,userDao.firstName,userDao.address,userDao.phone,userDao.town,userDao.email,userDao.postalCode,userDao.cgu, userDao.hasCompletedSituation, userDao.type);
             user.allergens = [];
             user.characteristics = [];
             userDao.allergens.forEach(allergen => user.allergens.push(new AllergenBean(allergen.id, allergen.name)))
@@ -295,22 +183,11 @@ class UserController extends CoreController{
         return null;
     }
 
-
-    static async getSmallUserById(userId){
-        return await UserDao.findSmallById(userId);
-    }
-
-
-    static async getUserByEmail(email){
-        const userDao = await UserDao.findByEmail(email);
-        return !!userDao;
-    }
-
     static async update_user(userUpdate, userId){
         return await UserDao.updateUser(userUpdate, userId);
     }
 
-    static async getUserIdByToken(token){
+    static async get_user_id_by_token(token){
         return await SessionDao.getUserIDByToken(token);
     }
 
