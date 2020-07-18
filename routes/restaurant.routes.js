@@ -1,14 +1,9 @@
 const bodyParser = require('body-parser');
 const RestaurantController = require('../controllers').RestaurantController;
 const TypeRestaurantController = require('../controllers').TypeRestaurantController;
-const SessionDao = require('../dao').SessionDAO;
-const AuthMiddleware = require('../middlewares').AuthMiddleware;
-const RestaurantListController = require('../controllers').RestaurantListController;
-const FriendsListController = require('../controllers').FriendsListUserController;
+const AllergenController = require('../controllers').AllergenController;
 
 module.exports = function(app) {
-
-    // TODO attention middleware
 
     /**
      * Create restaurant
@@ -20,21 +15,6 @@ module.exports = function(app) {
             res.status(400).end();
         } else if(ret){
             res.status(201).json(ret);
-        }
-        res.status(500).end();
-
-    });
-
-    /**
-     * Add restaurant from front
-     */
-    app.post('/restaurant/add/:token', bodyParser.json(), async (req, res) => {
-        const ret = await RestaurantController.addRestaurant(req);
-
-        if(ret === -1){
-            res.status(400).end();
-        } else if(ret){
-            res.status(200).json(ret);
         }
         res.status(500).end();
 
@@ -59,53 +39,14 @@ module.exports = function(app) {
     /**
      * Get random restaurant
      */
-    app.post('/restaurant/rand', bodyParser.json(), async (req, res) => {
-        const filters = req.body;
-        const randRest = await RestaurantController.getRandomRestaurant(filters);
+    app.get('/restaurant/rand', bodyParser.json(), async (req, res) => {
+        const randRest = await RestaurantController.getRandomRestaurant(req.body);
+
         if(randRest){
-            res.status(200).json({restaurant : RestaurantController.manageRestaurant(randRest)});
-        }else{
-            res.status(200).json({restaurant : null});
-        }
-        res.status(500).end();
-
-    });
-
-    /**
-     * Get random restaurant roll
-     */
-    app.post('/restaurant/roll/:token',  bodyParser.json() ,async (req, res, next) => {
-        const restaurantsListId = req.body.list;
-        const friendListId = req.body.friendList;
-
-        const token = req.params.token;
-        const userId = await SessionDao.getUserIDByToken(token);
-
-        const restaurantList = await RestaurantListController.restaurantsListIdNotExist(restaurantsListId);
-        if(restaurantList === 0){
-            res.status(400).json({
-                message: "Veuillez renseigner une liste de restaurants "
-            });
-        } else if(restaurantList === -1){
-            res.status(400).json({
-                message: "Your restaurantId doesn't exist in BDD"
-            })
-        }
-
-        const friendsList  = friendListId ? await FriendsListController.friendsListUserNotExist(req,res,next,friendListId) :
-            {
-                creator: userId,
-                users: [],
-                name: "TemporaryList"
-            };
-
-        const rollRestaurant = await RestaurantController.getRandomRestaurantByUserList(friendsList,restaurantList);
-
-        if(rollRestaurant){
-            if(rollRestaurant === -1){
+            if(randRest === -1){
                 res.status(204).end();
-            } else if (rollRestaurant){
-                res.status(200).json(rollRestaurant);
+            } else if (randRest){
+                res.status(200).json(randRest);
             }
         }
         res.status(500).end();
@@ -121,7 +62,7 @@ module.exports = function(app) {
             if(ret === -1){
                 res.status(404).end();
             } else if (ret) {
-                res.status(200).json(RestaurantController.manageRestaurant(ret));
+                res.status(200).json(ret);
             }
         }
         res.status(500).end();

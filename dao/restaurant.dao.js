@@ -41,76 +41,7 @@ class RestaurantDao {
         }
         else {
             return undefined;
-        }
-    }
-
-    static async getByCityAndCharacteristicsAndAllergensAndTypes(city, characteristics, allergens, types){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, characteristics: characteristics, allergens: allergens, types:types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndCharacteristicsAndAllergens(city, characteristics, allergens){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, characteristics: characteristics, allergens: allergens})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndCharacteristicsAndTypes(city, characteristics, types){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, characteristics: characteristics, types:types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndAllergensAndTypes(city, allergens, types){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, allergens: allergens, types:types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCharacteristicsAndAllergensAndTypes(characteristics, allergens, types){
-        return await Restaurant.find({characteristics: characteristics, allergens: allergens, types:types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndCharacteristics(city, characteristics){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, characteristics: characteristics})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndAllergens(city, allergens){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, allergens: allergens})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCityAndTypes(city, types){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex, types: types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCharacteristicsAndTypes(characteristics, types){
-        return await Restaurant.find({characteristics: characteristics, types: types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCharacteristicsAndAllergens(characteristics, allergens){
-        return await Restaurant.find({characteristics: characteristics, allergens: allergens})
-            .populate('types ', '-__v -users');
-    }
-    static async getByAllergensAndTypes(allergens, types){
-        return await Restaurant.find({allergens: allergens, types: types})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCity(city){
-        const regex = new RegExp(["^", city, "$"].join(""), "i");
-        return await Restaurant.find({city: regex})
-            .populate('types ', '-__v -users');
-    }
-    static async getByCharacteristics(characteristics){
-        return await Restaurant.find({characteristics: characteristics})
-            .populate('types ', '-__v -users');
-    }
-    static async getByAllergens(allergens){
-        return await Restaurant.find({allergens: allergens})
-            .populate('types ', '-__v -users');
-    }
-    static async getByTypes(types){
-        return await Restaurant.find({types: types})
-            .populate('types ', '-__v -users');
+        };
     }
 
 

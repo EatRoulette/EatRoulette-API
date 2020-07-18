@@ -12,8 +12,7 @@ class UserBean{
     hasCompletedSituation;
     type;
 
-    constructor(lastName, firstName, address, phone, town, email, postalCode, cgu, hasCompletedSituation, type, id) {
-        this.id = id;
+    constructor(lastName, firstName, address, phone, town, email, postalCode, cgu, hasCompletedSituation, type) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.address = address;
