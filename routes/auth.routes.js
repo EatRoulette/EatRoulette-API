@@ -10,8 +10,8 @@ module.exports = function(app) {
 
     app.delete('/auth/logout/:token',  UserController.logout);
 
-    app.put('/auth/user/:userId', bodyParser.json() , UserController.modif_user);
+    app.put('/auth/user/:userId', bodyParser.json() , UserController.updateUser);
 
-    app.delete('/auth/user/:userId', UserController.delete_user);
+    app.delete('/auth/user/:userId', UserController.deleteUser);
 
 };

@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
+const Comment = require('../models').Comment;
 
 const Schema = mongoose.Schema;
-
-const CommentSchema = new Schema({
-    message: { type: String, default: '' },
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    created_at: { type: Date, default: Date.now },
-});
 
 const TicketSchema = new Schema({
     author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -20,14 +15,14 @@ const TicketSchema = new Schema({
     type: {
         type: String,
         default: 'request',
-        enum: ['bug', 'request'],
+        enum: ['bug', 'request', 'newRestaurant'],
     },
     emergency: { type: Number, default: 0 }, // relevant for Java back office
     users: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: [],
     }, // user in charge of the ticket =>  relevant for Java back office
-    comments: { type: [CommentSchema], default: [] },
+    comments: { type: [Comment], default: [] },
     created_at: { type: Date, default: Date.now },
 });
 

@@ -20,7 +20,7 @@ class TypeRestaurantDao {
      * @returns {Promise<*>}
      */
     static async getAll(){
-        const allTypes = await TypeRestaurant.find().populate('restaurants', '-__v -_id -types');
+        const allTypes = await TypeRestaurant.find().populate('restaurants', '-__v -types');
 
         return allTypes;
     }

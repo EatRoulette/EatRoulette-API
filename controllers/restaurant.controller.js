@@ -2,10 +2,20 @@ const RestaurantDAO = require('../dao').RestaurantDAO;
 const TypeRestaurantDAO = require('../dao').TypeRestaurantDAO;
 const AllergenDAO = require('../dao').AllergenDAO;
 const CharacteristicDAO = require('../dao').CharacteristicDAO;
+const SessionDao = require('../dao').SessionDAO;
+
+const CoreController = require('./core.controller');
+const AllergenController = require('./alleregen.controller');
+const CharacteristicController = require('./characteristic.controller');
+const TypeRestaurantController = require('./type-restaurant.controller');
+const TicketController = require('./ticket.controller');
+const FriendsListController = require('./friendsListUser.controller');
+
+
 const RestaurantBean = require('../beans').RestaurantBean;
 const Tools = require('../utils').Util;
 
-class RestaurantController {
+class RestaurantController extends CoreController{
 
     /**
      * Save the restaurant
@@ -19,6 +29,28 @@ class RestaurantController {
             restaurant = await RestaurantDAO.saveRestaurant(restaurant);
             restaurant = await this.getRestaurantsById(restaurant._id);
             return restaurant;
+        } else {
+            return -1; //Bad request
+        }
+    }
+    /**
+     * add the restaurant
+     * @param req
+     * @returns {Promise<void>}
+     */
+    static async addRestaurant(req){
+        const token = req.params.token;
+        const userId = await SessionDao.getUserIDByToken(token);
+        const restaurant = await this.buildRestaurantFromBean(req);
+        const ticketToCreate = {
+            status: 'created',
+            title: 'Création du restaurant ' + restaurant.name,
+            type: 'newRestaurant',
+            author: userId
+        }
+        const ticketCreated = await TicketController.create(ticketToCreate)
+        if(restaurant && ticketCreated){
+            return await RestaurantDAO.saveRestaurant(restaurant);
         } else {
             return -1; //Bad request
         }
@@ -116,8 +148,9 @@ class RestaurantController {
     }
 
     static manageRestaurant(restaurant){
-        console.log(JSON.stringify(restaurant))
-        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types, restaurant.address);
+        return new RestaurantBean(restaurant._id, restaurant.name, restaurant.types,
+            restaurant.address, restaurant.city, restaurant.website, restaurant.postalCode,
+            restaurant.characteristics, restaurant.allergens);
     }
 
     static manageRestaurants(restaurants){
@@ -126,20 +159,193 @@ class RestaurantController {
         return result;
     }
 
+    static isPresent(item){
+        return item && item !== "";
+    }
+
+    static arePresent(items){
+        return items && items.length > 0;
+    }
+
     /**
      * Return a random restaurant
      * @returns {Promise<*>}
      */
-    static async getRandomRestaurant(json){
-        const allRestaurants = await RestaurantDAO.getByElement(json);
+    static async getRandomRestaurant(filters){
+        const { city, characteristics, allergens, types } = filters
+        let allRestaurants
+        if(RestaurantController.isPresent(city) &&
+                RestaurantController.arePresent(characteristics)
+                && RestaurantController.arePresent(allergens)
+                && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndAllergensAndTypes(city, characteristics, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+                RestaurantController.arePresent(characteristics)
+                && !RestaurantController.arePresent(types)
+                && RestaurantController.arePresent(allergens)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndAllergens(city, characteristics, allergens)
+        }else if(RestaurantController.isPresent(city)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types) &&
+            RestaurantController.arePresent(characteristics)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristics(city, characteristics)
+        }else if(RestaurantController.isPresent(city)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)
+            && !RestaurantController.arePresent(characteristics)){
+            allRestaurants = await RestaurantDAO.getByCity(city)
+        }else if(
+            !RestaurantController.isPresent(city)
+            && RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndAllergensAndTypes(characteristics, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndCharacteristicsAndTypes(city, characteristics, types)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndAllergensAndTypes(city, allergens, types)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndAllergens(city, allergens)
+        }else if(RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCityAndTypes(city, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndTypes(characteristics, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristicsAndAllergens(characteristics, allergens)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByAllergensAndTypes(allergens, types)
+        }else if(!RestaurantController.isPresent(city) &&
+            RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByCharacteristics(characteristics)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && RestaurantController.arePresent(allergens)
+            && !RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByAllergens(allergens)
+        }else if(!RestaurantController.isPresent(city) &&
+            !RestaurantController.arePresent(characteristics)
+            && !RestaurantController.arePresent(allergens)
+            && RestaurantController.arePresent(types)){
+            allRestaurants = await RestaurantDAO.getByTypes(allergens)
+        }
+        if (allRestaurants && allRestaurants.length > 0){
+            const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
+            return allRestaurants[randomNumber];
+        } else {
+            return null;
+        }
+    }
 
-        console.log("-------------")
-        console.log(allRestaurants);
+    /**
+     * Return a random restaurant by user List
+     * @returns {Promise<*>}
+     */
+    static async getRandomRestaurantByUserList(friendList,restaurantList){
+        // we push the creator in the friendList for the situation
+        friendList.users.push(friendList.creator);
 
-        if(allRestaurants){
-            if (allRestaurants.length > 0){
-                const randomNumber = Tools.getRandomInt(0, allRestaurants.length -1);
-                return allRestaurants[randomNumber];
+        if(restaurantList && restaurantList.restaurants){
+            if (restaurantList.restaurants.length > 0){
+                const situation = await FriendsListController.getFriendsListSituation(friendList);
+                const restaurantsWithScore = await RestaurantController.calculateScore(situation, restaurantList);
+                let limit = restaurantsWithScore.length/3;
+                if(restaurantsWithScore.length <= 2){
+                    limit = 1;
+                }
+                const results = await RestaurantController.sortOnly(restaurantsWithScore, limit);
+
+                const randomNumber = Tools.getRandomInt(0, results.length -1);
+
+                const restaurantResult = this.manageRestaurant(results[randomNumber])
+
+                return {restaurant:restaurantResult, score:results[randomNumber].score};
+            } else {
+                return -1;
+            }
+        }
+        return undefined;
+    }
+
+    static async sortOnly(results, limit){
+        let resultSorted = [];
+        // sort by Score
+        results.sort(compareScore);
+        for (let i = 0; i < limit; i++){
+            resultSorted.push(results[i]);
+        }
+        return resultSorted;
+    }
+
+    static async calculateScore(situation, restaurantList){
+        let result = [];
+        for(const restaurantId of restaurantList.restaurants){
+            const restaurantData = await RestaurantDAO.getById(restaurantId);
+
+            let score = 0;
+            // calculate of restaurant
+            for ( const allergen of situation.allergens){
+                if(RestaurantController.contains(restaurantData.allergens, "name", allergen.name)){
+                    for(let i = 0; i < restaurantData.allergens.length; i++){
+                        if(restaurantData.allergens[i].name === allergen.name){
+                            score -= 10*allergen.rate/100
+                        }
+                    }
+                }
+                else {
+                    score += 10;
+                }
+            }
+
+            for (const characteristic of situation.characteristics){
+                if(RestaurantController.contains(restaurantData.characteristics, "name", characteristic.name)){
+                    for(let i = 0; i < restaurantData.characteristics.length; i++){
+                        if(restaurantData.characteristics[i].name === characteristic.name){
+                            score += 15*characteristic.rate/100;
+                        }
+                    }
+                }
+            }
+
+            restaurantData.score = score;
+            result.push(restaurantData);
+        }
+        return result;
+    }
+    /**
+     * Return a random restaurant by user List and name
+     * @returns {Promise<*>}
+     */
+    static async getRandomRestaurantByUserListAndName(listId, name){
+        const list = await RestaurantListDAO.findById(listId);
+
+        if(list && list.restaurants){
+            const filteredList = list.restaurants.filter(restaurant => restaurant.name.toLowerCase().contains(name.toLowerCase()))
+            if (filteredList.length > 0){
+                const randomNumber = Tools.getRandomInt(0, filteredList.length -1);
+                return filteredList[randomNumber];
             } else {
                 return -1;
             }
@@ -292,13 +498,11 @@ class RestaurantController {
         const restaurant = await RestaurantDAO.getById(id);
 
         if(restaurant) {
-            const isDeleted = await RestaurantDAO.deleteById(id);
-            return isDeleted
+            return await RestaurantDAO.deleteById(id);
         } else {
             return -1; //404 not found
         }
     }
-
 
     /**
      * Check and build the restaurant
@@ -310,18 +514,112 @@ class RestaurantController {
         if (req.body.name && req.body.site && req.body.address && req.body.city &&
             req.body.postalCode && req.body.dep && req.body.types && req.body._idSituation ) {
 
-            const restaurant = {
-                name: req.body.name, site: req.body.site, address: req.body.address,
+            return {
+                name: req.body.name, website: req.body.site, address: req.body.address,
                 city: req.body.city, postalCode: req.body.postalCode, dep: req.body.dep, types: req.body.types,
                 _idSituation: req.body._idSituation
             }
-            return restaurant;
 
         } else {
             return false;
         }
     }
 
+    static async getCharacteristics(selectedCharacteristics){
+        const characteristics = []
+        for(const characteristic of selectedCharacteristics){
+            const newCharacteristic = await RestaurantController.getCharacteristic(characteristic)
+            if(newCharacteristic !== -1){
+                characteristics.push(newCharacteristic)
+            }
+        }
+        return characteristics;
+    }
+
+    static async getTypesFromRequest(selectedTypes){
+        const types = []
+        for(const type of selectedTypes){
+            const newType = await RestaurantController.getType(type)
+            if(newType !== -1){
+                types.push(newType)
+            }
+        }
+        return types;
+    }
+
+    static async getType(type){
+        return await TypeRestaurantController.getTypeById(type.id)
+    }
+
+    static async getCharacteristic(characteristic){
+        return await CharacteristicController.getCharacteristicById(characteristic.id)
+    }
+
+    static async getAllergen(allergen){
+        return await AllergenController.getAllergenById(allergen.id)
+    }
+
+    static async getAllergens(allergens ){
+        const allergensResult = []
+        for(const allergen of allergens){
+            const newAllergen = await RestaurantController.getAllergen(allergen)
+            if(newAllergen !== -1){
+                allergensResult.push(newAllergen)
+            }
+        }
+        return allergensResult;
+    }
+
+    static async buildRestaurantFromBean(req){
+        let characteristics = []
+        let allergens = []
+        let types = []
+
+        if (req.body.name && req.body.address && req.body.city &&
+            req.body.postalCode ) {
+            if(req.body.allergens){
+                const selectedAllergens = req.body.allergens.filter(a => a.selected)
+                allergens = await RestaurantController.getAllergens(selectedAllergens)
+            }
+            if(req.body.characteristics){
+                const selectedCharacteristics = req.body.characteristics.filter(c => c.selected)
+                characteristics = await RestaurantController.getCharacteristics(selectedCharacteristics)
+            }
+            if(req.body.types){
+                const selectedTypes = req.body.types.filter(t => t.selected)
+                types = await RestaurantController.getTypesFromRequest(selectedTypes)
+            }
+            return {
+                name: req.body.name,
+                website: req.body.website,
+                address: req.body.address,
+                city: req.body.city,
+                postalCode: req.body.postalCode,
+                dep: req.body.dep,
+                characteristics: characteristics,
+                types: types,
+                allergens: allergens,
+                status: 'pending',
+            }
+
+        } else {
+            return false;
+        }
+    }
+
+}
+
+function compareScore(a, b) {
+    const scoreA = a.score;
+    const scoreB = b.score;
+
+    let comparison = 0;
+    if (scoreA < scoreB) {
+        comparison = 1;
+    } else if (scoreA > scoreB) {
+        comparison = -1;
+    }
+    return comparison;
 }
 
 module.exports = RestaurantController;
