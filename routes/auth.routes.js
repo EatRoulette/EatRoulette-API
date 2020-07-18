@@ -1,6 +1,6 @@
 const bodyParser = require('body-parser');
 const UserController = require('../controllers').UserController;
-
+const AuthMiddleware = require('../middlewares').AuthMiddleware;
 
 module.exports = function(app) {
 
@@ -8,10 +8,10 @@ module.exports = function(app) {
 
     app.post('/auth/login', bodyParser.json(), UserController.login);
 
-    app.delete('/auth/logout/:token',  UserController.logout);
+    app.delete('/auth/logout/:token', AuthMiddleware.isConnected, UserController.logout);
 
-    app.put('/auth/user/:userId', bodyParser.json() , UserController.updateUser);
+    app.put('/auth/user/:userId', AuthMiddleware.isConnected, bodyParser.json() , UserController.updateUser);
 
-    app.delete('/auth/user/:userId', UserController.deleteUser);
+    app.delete('/auth/user/:userId', AuthMiddleware.isAdmin, UserController.deleteUser);
 
 };
