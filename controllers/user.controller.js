@@ -142,18 +142,21 @@ class UserController extends CoreController{
                 // check if isNewEmail => already exists
                 const email = data.email;
                 if(email !== user.email){
-                    const exists = UserController.getUserByEmail(email)
+                    const exists = await UserController.getUserByEmail(email)
                     if(exists){
                         res.status(500).end();
                     }else{
-                        userUpdated = await UserController.update_user(data, userId);
+                        userUpdated = await UserController.update_user(data, userId, true);
                     }
                 }else {
                     // save new data
-                   userUpdated = await UserController.update_user(data, userId);
+                   userUpdated = await UserController.update_user(data, userId, true);
                 }
-
-                res.status(200).json(userUpdated);
+                if(userUpdated){
+                    res.status(200).json(userUpdated);
+                } else {
+                    res.status(500).end();
+                }
             } else {
                 res.status(500).end();
             }
@@ -297,8 +300,8 @@ class UserController extends CoreController{
         return !!userDao;
     }
 
-    static async update_user(userUpdate, userId){
-        return await UserDao.updateUser(userUpdate, userId);
+    static async update_user(userUpdate, userId, isAccount){
+        return await UserDao.updateUser(userUpdate, userId, isAccount);
     }
 
     static async getUserIdByToken(token){
