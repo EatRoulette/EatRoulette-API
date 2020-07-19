@@ -146,11 +146,11 @@ class UserController extends CoreController{
                     if(exists){
                         res.status(500).end();
                     }else{
-                        userUpdated = await UserController.update_user(data, userId);
+                        userUpdated = await UserController.update_user(data, userId, true);
                     }
                 }else {
                     // save new data
-                   userUpdated = await UserController.update_user(data, userId);
+                   userUpdated = await UserController.update_user(data, userId, true);
                 }
 
                 res.status(200).json(userUpdated);
@@ -297,8 +297,8 @@ class UserController extends CoreController{
         return !!userDao;
     }
 
-    static async update_user(userUpdate, userId){
-        return await UserDao.updateUser(userUpdate, userId);
+    static async update_user(userUpdate, userId, isAccount){
+        return await UserDao.updateUser(userUpdate, userId, isAccount);
     }
 
     static async getUserIdByToken(token){

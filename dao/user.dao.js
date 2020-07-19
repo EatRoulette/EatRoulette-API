@@ -7,13 +7,16 @@ class UserDao {
     /**
      * @param user {User}
      * @param userId
+     * @param isAccount
      * @returns {Promise<User>}
      */
-    static async updateUser(user, userId) {
+    static async updateUser(user, userId, isAccount) {
         const userToUpdate = await this.findById(userId)
         if(userToUpdate){
-            userToUpdate.characteristics = user.characteristics;
-            userToUpdate.allergens = user.allergens;
+            if(!isAccount){
+                userToUpdate.characteristics = user.characteristics;
+                userToUpdate.allergens = user.allergens;
+            }
             if(user.hasCompletedSituation){
                 userToUpdate.hasCompletedSituation = user.hasCompletedSituation;
             }
