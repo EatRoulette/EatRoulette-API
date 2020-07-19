@@ -480,6 +480,16 @@ class RestaurantController extends CoreController{
         return undefined;
     }
 
+    static async updateRestaurantStatus(idRestaurant){
+        if (idRestaurant) {
+            const restaurant = await RestaurantDAO.updateStatusById(idRestaurant);
+            return restaurant;
+        } else {
+            return -1; // Bad request
+        }
+    }
+
+
     /**
      * Update the model by id
      * @param id
