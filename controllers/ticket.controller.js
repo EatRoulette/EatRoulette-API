@@ -129,7 +129,7 @@ class TicketController extends CoreController {
             const smallAuthor = await UserController.getSmallUserById(ticket.author)
             author = new UserBean(smallAuthor.firstName, smallAuthor.lastName)
         }
-        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at);
+        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at, ticket.restaurant);
     }
 
     /**

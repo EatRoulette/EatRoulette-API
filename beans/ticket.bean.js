@@ -7,8 +7,9 @@ class TicketBean{
     comments;
     author;
     created_at;
+    restaurantId;
 
-    constructor(id, title, message, status, type, comments, author,created_at) {
+    constructor(id, title, message, status, type, comments, author,created_at, restaurantId) {
         this.id = id;
         this.title = title;
         this.message = message;
@@ -17,6 +18,7 @@ class TicketBean{
         this.comments = comments;
         this.author = author;
         this.created_at = created_at;
+        this.restaurantId = restaurantId;
     }
 
 }
