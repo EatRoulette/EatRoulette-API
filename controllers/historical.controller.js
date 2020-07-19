@@ -45,7 +45,7 @@ class HistoricalController extends CoreController {
             restaurants: [restaurant],
             users: []
         };
-        if(!friendList || !friendList.length){
+        if(!friendList || friendList.length === 0){
             const token = req.params.token;
             const userId = await SessionDao.getUserIDByToken(token);
             data.users.push(userId)
