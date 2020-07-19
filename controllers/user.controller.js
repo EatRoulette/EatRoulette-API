@@ -142,7 +142,7 @@ class UserController extends CoreController{
                 // check if isNewEmail => already exists
                 const email = data.email;
                 if(email !== user.email){
-                    const exists = UserController.getUserByEmail(email)
+                    const exists = await UserController.getUserByEmail(email)
                     if(exists){
                         res.status(500).end();
                     }else{
@@ -152,8 +152,11 @@ class UserController extends CoreController{
                     // save new data
                    userUpdated = await UserController.update_user(data, userId, true);
                 }
-
-                res.status(200).json(userUpdated);
+                if(userUpdated){
+                    res.status(200).json(userUpdated);
+                } else {
+                    res.status(500).end();
+                }
             } else {
                 res.status(500).end();
             }
