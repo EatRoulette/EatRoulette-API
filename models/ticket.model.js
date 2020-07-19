@@ -18,6 +18,7 @@ const TicketSchema = new Schema({
         enum: ['bug', 'request', 'newRestaurant'],
     },
     emergency: { type: Number, default: 0 }, // relevant for Java back office
+    restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant' },
     users: {
         type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
         default: [],
