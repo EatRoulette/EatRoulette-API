@@ -129,7 +129,7 @@ class TicketController extends CoreController {
             const smallAuthor = await UserController.getSmallUserById(ticket.author)
             author = new UserBean(smallAuthor.firstName, smallAuthor.lastName)
         }
-        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at);
+        return new TicketBean(ticket.id, ticket.title,ticket.message, status, type, comments, author,ticket.created_at, ticket.restaurant);
     }
 
     /**
@@ -320,10 +320,16 @@ class TicketController extends CoreController {
      * @returns {Promise<undefined| tickets>}
      */
     static async getOpenTickets(){
-        const openedTickets = await TicketDao.getOpenedTickets();
+        const tickets = await TicketDao.getOpenedTickets();
+        if(tickets){
+            const ticketsBean = []
+            for (const t of tickets) {
+                const ticketBean = await TicketController.manageTicket(t)
+                ticketsBean.push(ticketBean)
+            }
+            return ticketsBean;
+        }else{
 
-        if (openedTickets){
-            return openedTickets;
         }
         return undefined;
     }

@@ -44,6 +44,21 @@ class RestaurantDao {
         }
     }
 
+    /**
+     * Update restaurant status
+     * @param id
+     * @returns {Promise<undefined|*>}
+     */
+    static async updateStatusById(id){
+        if (mongoose.Types.ObjectId.isValid(id)){
+            return Restaurant.update({_id: id}, {
+                status: "validated"
+            });
+        } else {
+            return undefined;
+        }
+    }
+
     static async getByCityAndCharacteristicsAndAllergensAndTypes(city, characteristics, allergens, types){
         const regex = new RegExp(["^", city, "$"].join(""), "i");
         return await Restaurant.find({city: regex, characteristics: characteristics, allergens: allergens, types:types})

@@ -127,6 +127,18 @@ module.exports = function(app) {
         res.status(500).end();
     });
 
+    app.put('/restaurant/validate/:id', AuthMiddleware.isAdmin, async (req, res) => {
+        const ret = await RestaurantController.updateRestaurantStatus(req.params.id)
+
+        if (ret === -1){
+            res.status(400).end();
+        } else if (ret) {
+            res.status(200).end();
+        }
+        res.status(500).end();
+
+    });
+
     /**
      * Modify restaurant by id
      */

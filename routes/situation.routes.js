@@ -49,7 +49,7 @@ module.exports = function(app) {
                 }
             }
             userToUpdate.hasCompletedSituation = true;
-            const update = await UserController.update_user(userToUpdate, userId)
+            const update = await UserController.update_user(userToUpdate, userId, false)
             if(update){
                 res.status(200).json({message : 'the user has been updated'});
             } else {

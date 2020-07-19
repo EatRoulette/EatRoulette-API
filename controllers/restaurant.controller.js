@@ -42,16 +42,24 @@ class RestaurantController extends CoreController{
     static async addRestaurant(req){
         const token = req.params.token;
         const userId = await SessionDao.getUserIDByToken(token);
-        const restaurant = await this.buildRestaurantFromBean(req);
+        const restaurantBean = await this.buildRestaurantFromBean(req);
+        const restaurant = await RestaurantDAO.saveRestaurant(restaurantBean);
         const ticketToCreate = {
             status: 'created',
             title: 'Création du restaurant ' + restaurant.name,
+            restaurant: restaurant._id,
+            message: "Nom: " + restaurant.name +
+                     " Ville: " + restaurant.city +
+                     " Address: " + restaurant.address +
+                     " Code postale : " + restaurant.postalCode +
+                     " Site web " + restaurant.website,
             type: 'newRestaurant',
             author: userId
         }
         const ticketCreated = await TicketController.create(ticketToCreate)
+
         if(restaurant && ticketCreated){
-            return await RestaurantDAO.saveRestaurant(restaurant);
+            return restaurant;
         } else {
             return -1; //Bad request
         }
@@ -471,6 +479,16 @@ class RestaurantController extends CoreController{
         }
         return undefined;
     }
+
+    static async updateRestaurantStatus(idRestaurant){
+        if (idRestaurant) {
+            const restaurant = await RestaurantDAO.updateStatusById(idRestaurant);
+            return restaurant;
+        } else {
+            return -1; // Bad request
+        }
+    }
+
 
     /**
      * Update the model by id
