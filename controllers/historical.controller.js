@@ -51,8 +51,10 @@ class HistoricalController extends CoreController {
             data.users.push(userId)
         }else {
             const friendListModel = await FriendsListUserController.getById(friendList)
-            friendListModel.users.forEach(user => data.users.push(user))
-            data.users.push(friendListModel.creator)
+            if(friendListModel) {
+                friendListModel.users.forEach(user => data.users.push(user))
+                data.users.push(friendListModel.creator)
+            }
         }
 
         const order = await HistoricalController.create(data, { authorizedFields });
