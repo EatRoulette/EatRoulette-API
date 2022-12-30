@@ -24,7 +24,7 @@
     "express": "^4.17.1",
     "express-fileupload": "^1.1.9",
     "fs": "0.0.1-security",
-    "mocha": "^7.1.2",
+    "mocha": "^10.2.0",
     "mongoose": "^5.9.7",
     "nodemon": "^2.0.3",
     "puppeteer": "^3.3.0"
